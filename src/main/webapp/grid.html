@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="Cache-Control"
+	content="no-store, no-cache, must-revalidate, max-age=0">
+<title>我的组合</title>
+<link href="assets/css/jquery-ui.min.css" rel="stylesheet"
+	media="screen">
+<link href="assets/css/ui.jqgrid.css" rel="stylesheet" media="screen">
+
+<!-- Favicons -->
+<link rel="shortcut icon" href="assets/ico/favicon.ico">
+<script src="assets/js/jquery-2.0.3.min.js"></script>
+<script src="assets/js/jquery-ui.min.js"></script>
+<script src="assets/js/grid.locale-cn.js"></script>
+<script src="assets/js/jquery.jqGrid.min.js"></script>
+<script src="assets/js/gui.grid.js"></script>
+</head>
+<body>
+	<div class="container">
+		<table id="grid"></table>
+		<div id="pager"></div>
+	</div>
+	<script type="text/javascript">
+    (function() {
+      var gidData = [ {
+        id : "1",
+        ticker : "000001.SZ",
+        name : "平安银行",
+        price : 10.90,
+        change : 0.0264,
+        value : 1090000
+      }, {
+        id : "2",
+        ticker : "000002.SZ",
+        name : "万科A",
+        price : 9.72,
+        change : -0.0164,
+        value : 9720000
+      }, {
+        id : "3",
+        ticker : "600570.SH",
+        name : "恒生电子",
+        price : 18.24,
+        change : 0.0334,
+        value : 18240000
+      } ];
+      var max = 0;
+      for ( var i = 0; i < gidData.length; i++) {
+        var row = gidData[i];
+
+        if (row.value > max) {
+          max = row.value;
+        }
+      }
+      for ( var i = 0; i < gidData.length; i++) {
+        var row = gidData[i];
+        row.percent = row.value / max;
+        row.arrow = i-1;
+      }
+
+      $("#grid").jqGrid({
+        datatype : "local",
+        data : gidData,
+        height : 250,
+        colNames : [ '序号', '代码', '名称', '现价', '涨幅', '持仓市值' ],
+        colModel : [ {
+          name : 'id',
+          index : 'id',
+          width : 60,
+          sorttype : "int"
+        }, {
+          name : 'ticker',
+          index : 'ticker',
+          width : 90
+        }, {
+          name : 'name',
+          index : 'name',
+          width : 100
+        }, {
+          name : 'price',
+          index : 'price',
+          width : 100,
+          align : "right",
+          sorttype : "float",
+          formatter : "change",
+          formatoptions : {
+            changeField : 'change',
+            color : 'black',
+            upColor : 'red',
+            downColor : 'green'
+          }
+        }, {
+          name : 'change',
+          index : 'change',
+          width : 100,
+          align : "right",
+          sorttype : "float",
+          formatter : "arrow",
+          formatoptions : {
+            changeField : 'change',
+            color : 'black',
+            upColor : 'red',
+            downColor : 'green',
+            arrowField : 'arrow',
+            arrowCls : 'ui-icon ui-icon-arrowthick-1-e',
+            upArrowCls : 'ui-icon ui-icon-arrowthick-1-n',
+            downArrowCls : 'ui-icon ui-icon-arrowthick-1-s'            
+          }
+
+        }, {
+          name : 'value',
+          index : 'value',
+          width : 160,
+          sorttype : "float",
+          formatter : "bar",
+          formatoptions : {
+            percentField : "percent",
+            barColor : "red",
+            textColor : "gray"
+          }
+        } ],
+        caption : "持仓明细"
+      });
+
+
+
+    })();
+  </script>
+</body>
+</html>
