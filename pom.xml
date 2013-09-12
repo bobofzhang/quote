@@ -189,11 +189,15 @@
 			<id>springsource-repo</id>
 			<name>SpringSource Repository</name>
 			<url>http://repo.springsource.org/release</url>
+			<snapshots><enabled>false</enabled></snapshots>
+			<releases><enabled>true</enabled></releases>
 		</repository>
 		<repository>
 			<id>spring-milestones</id>
 			<name>SpringSource Milestones Repository</name>
 			<url>http://repo.springsource.org/libs-milestone/</url>
+			<snapshots><enabled>false</enabled></snapshots>
+			<releases><enabled>true</enabled></releases>
 		</repository>
 		<repository>
 			<id>spring-snapshots</id>
