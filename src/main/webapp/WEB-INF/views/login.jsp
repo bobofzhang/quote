@@ -26,11 +26,18 @@
 </head>
 <body>
 	<div class="container">
-		<div data-bind="visible: showErrorMessage" class="alert alert-danger">
-			<spring:message code="loginFailed" />
-		</div>
+		<c:if test="${param.error != null}">
+            <div class="alert alert-danger">
+                <spring:message code="loginFailed" />
+            </div>
+         </c:if>
+         <c:if test="${param.logout != null}">
+            <div class="alert alert-success">
+                <spring:message code="logouted" />
+            </div>
+        </c:if>
 		<c:url var="loginUrl" value="/login" />
-		<form class="form-signin" method="post" action="${loginUrl}">
+		<form:form class="form-signin" method="post" action="${loginUrl}">
 			<h3 class="text-muted form-signin-heading">
 				<spring:message code="login" />
 			</h3>
@@ -48,23 +55,11 @@
 			</button>
 			<hr />
 			<p class="text-info">
-				<small><spring:message code="loginInfo" /></small>
+				<small><spring:message code="loginHint" /></small>
 			</p>
-		</form>
+		</form:form>
 	</div>
 	<!-- /container -->
-	<c:url var="knockoutUrl" value="/assets/js/knockout-2.3.0.js" />
-	<script type="text/javascript" src="${knockoutUrl}"><!-- knockout --></script>
-	<script type="text/javascript">
-    <![CDATA[
-    ko.applyBindings({
-      showErrorMessage : ko.computed(function() {
-        var query = window.location.search;
-        return query ? (query.indexOf('error') != -1) : false;
-      }),
-    });
-    ]]>
-  </script>
 </body>
 </html>
 </jsp:root>

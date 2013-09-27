@@ -39,13 +39,14 @@
 		<commons.lang3.version>3.1</commons.lang3.version>
 
 		<spring.version>4.0.0.BUILD-SNAPSHOT</spring.version>
-		<spring.security.version>3.2.0.RC1</spring.security.version>
-		
+		<spring.security.version>3.2.0.CI-SNAPSHOT</spring.security.version>
+
 		<reactor.version>1.0.0.M2</reactor.version>
-		<netty.version>4.0.8.Final</netty.version>
-		
+		<netty.version>4.0.9.Final</netty.version>
+		<javassist.version>3.18.0-GA</javassist.version>
+
 		<jackson.version>2.2.2</jackson.version>
-		
+
 		<glassfish.version>4.0</glassfish.version>
 		<jetty.version>9.0.5.v20130815</jetty.version>
 		<tomcat.version>8.0.0-RC1</tomcat.version>
@@ -97,7 +98,7 @@
 			<artifactId>logback-classic</artifactId>
 			<version>${logback.version}</version>
 		</dependency>
-		
+
 		<dependency>
 			<groupId>io.netty</groupId>
 			<artifactId>netty-all</artifactId>
@@ -114,8 +115,8 @@
 					<groupId>commons-logging</groupId>
 					<artifactId>commons-logging</artifactId>
 				</exclusion>
-			</exclusions>			
-		</dependency>		
+			</exclusions>
+		</dependency>
 		<dependency>
 			<groupId>org.springframework</groupId>
 			<artifactId>spring-webmvc</artifactId>
@@ -131,7 +132,7 @@
 			<groupId>org.springframework</groupId>
 			<artifactId>spring-messaging</artifactId>
 			<version>${spring.version}</version>
-		</dependency>		
+		</dependency>
 		<dependency>
 			<groupId>org.springframework</groupId>
 			<artifactId>spring-context-support</artifactId>
@@ -148,7 +149,7 @@
 			<artifactId>jackson-databind</artifactId>
 			<version>${jackson.version}</version>
 		</dependency>
-		
+
 		<dependency>
 			<groupId>org.springframework.security</groupId>
 			<artifactId>spring-security-core</artifactId>
@@ -169,7 +170,7 @@
 					<artifactId>spring-jdbc</artifactId>
 				</exclusion>
 			</exclusions>
-		</dependency>		
+		</dependency>
 
 		<dependency>
 			<groupId>org.projectreactor</groupId>
@@ -182,6 +183,14 @@
 			<artifactId>reactor-tcp</artifactId>
 			<version>${reactor.version}</version>
 		</dependency>
+
+		<dependency>
+			<groupId>org.javassist</groupId>
+			<artifactId>javassist</artifactId>
+			<version>${javassist.version}</version>
+
+		</dependency>
+
 	</dependencies>
 
 	<repositories>
@@ -189,21 +198,33 @@
 			<id>springsource-repo</id>
 			<name>SpringSource Repository</name>
 			<url>http://repo.springsource.org/release</url>
-			<snapshots><enabled>false</enabled></snapshots>
-			<releases><enabled>true</enabled></releases>
+			<snapshots>
+				<enabled>false</enabled>
+			</snapshots>
+			<releases>
+				<enabled>true</enabled>
+			</releases>
 		</repository>
 		<repository>
 			<id>spring-milestones</id>
 			<name>SpringSource Milestones Repository</name>
 			<url>http://repo.springsource.org/libs-milestone/</url>
-			<snapshots><enabled>false</enabled></snapshots>
-			<releases><enabled>true</enabled></releases>
+			<snapshots>
+				<enabled>false</enabled>
+			</snapshots>
+			<releases>
+				<enabled>true</enabled>
+			</releases>
 		</repository>
 		<repository>
 			<id>spring-snapshots</id>
 			<url>http://repo.springsource.org/snapshot</url>
-			<snapshots><enabled>true</enabled></snapshots>
-			<releases><enabled>false</enabled></releases>
+			<snapshots>
+				<enabled>true</enabled>
+			</snapshots>
+			<releases>
+				<enabled>false</enabled>
+			</releases>
 		</repository>
 	</repositories>
 
@@ -323,7 +344,7 @@
 					</execution>
 				</executions>
 			</plugin>
-			
+
 			<plugin>
 				<groupId>org.glassfish.embedded</groupId>
 				<artifactId>maven-embedded-glassfish-plugin</artifactId>
@@ -371,7 +392,7 @@
 						</goals>
 					</execution>
 				</executions>
-			</plugin>			
+			</plugin>
 		</plugins>
 	</build>
 </project>

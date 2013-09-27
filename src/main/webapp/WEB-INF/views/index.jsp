@@ -29,10 +29,10 @@
 		<div id="heading" class="masthead">
 			<div class="pull-right">
 				<c:url var="logoutUrl" value="/logout" />
-				<form class="form-inline" action="${logoutUrl}" method="post">
+				<form:form class="form-inline" action="${logoutUrl}" method="post">
 				  <span class="text-info" data-bind="text: username"><em><!--  --></em></span>&amp;nbsp;
                   <button class="btn btn-danger" type="submit"><i class="glyphicon glyphicon-off"><!--  --></i></button>
-                </form>
+                </form:form>
 			</div>
 			<h3 class="text-muted"><spring:message code="portfolio" /></h3>
 		</div>

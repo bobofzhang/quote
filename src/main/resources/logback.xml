@@ -20,7 +20,9 @@
 -->
 
   <logger name="com.gildata" level="DEBUG" />
-  <logger name="org.springframework" level="DEBUG" />
+  <logger name="io.netty" level="DEBUG" />
+  <logger name="org.springframework" level="WARN" />
+
   <root level="WARN">
     <appender-ref ref="STDOUT" />
 <!--     <appender-ref ref="FILE" /> -->
