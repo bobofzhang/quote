@@ -31,13 +31,13 @@ public class QuoteClient {
 		channel = bootstrap.connect(address).sync().channel();
 	}
 
-	public void stop() {
-		channel.close();
+	public void stop() throws Exception {
+		channel.closeFuture().sync();;
 		
 	}
 	
 	public void login() throws InterruptedException{
-		logger.debug("channel={}",channel);
+		logger.debug("channel:{}",channel);
 		
 		channel.writeAndFlush(new ReqLogin()).sync();
 	}

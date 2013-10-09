@@ -2,6 +2,9 @@ package com.gildata.quote.client;
 
 import io.netty.buffer.ByteBuf;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 public class ReqLogin extends Envelope{
 	
 	private String username;
@@ -11,8 +14,6 @@ public class ReqLogin extends Envelope{
 	public ReqLogin() {
 		super(EnvelopeType.RT_LOGIN);
 	}
-	
-	
 
 	public ReqLogin(String username, String password) {
 		super(EnvelopeType.RT_LOGIN);
@@ -53,7 +54,8 @@ public class ReqLogin extends Envelope{
 
 	@Override
 	public void encodeBody(ByteBuf byteBuf) {
-		byteBuf.writeShort(-128);
+		 
+		byteBuf.writeShort(16);
 		byteBuf.writeShort(0);
 		if (username != null) {
 			byte[] b = username.getBytes();

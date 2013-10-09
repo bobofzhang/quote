@@ -4,12 +4,14 @@ import static com.gildata.quote.client.QuoteConstants.FLAG;
 import static com.gildata.quote.client.QuoteConstants.HEADER_LEN;
 import io.netty.buffer.ByteBuf;
 
-public abstract class Envelope {
+public class Envelope {
+	
+	//private static final Logger logger = LoggerFactory.getLogger(Envelope.class);
 
 	protected final EnvelopeType type;
 	protected byte index;
 	protected byte operator;
-	protected long key;
+	protected int key;
 	protected PrivateKey privateKey;
 
 	public Envelope(EnvelopeType type) {
@@ -17,7 +19,7 @@ public abstract class Envelope {
 		this.type = type;
 	}
 
-	public Envelope(EnvelopeType type, byte index, byte operator, long key,
+	public Envelope(EnvelopeType type, byte index, byte operator, int key,
 			PrivateKey privateKey) {
 		super();
 		this.type = type;
@@ -25,6 +27,15 @@ public abstract class Envelope {
 		this.operator = operator;
 		this.key = key;
 		this.privateKey = privateKey;
+	}
+	
+	public Envelope(EnvelopeType type,ByteBuf buf) {
+		this(type);
+		this.index = buf.readByte();
+		this.operator = buf.readByte();
+		this.key = buf.readInt();
+		this.privateKey = new PrivateKey(buf);
+		
 	}
 
 	public EnvelopeType getType() {
@@ -51,7 +62,7 @@ public abstract class Envelope {
 		return key;
 	}
 
-	public void setKey(long key) {
+	public void setKey(int key) {
 		this.key = key;
 	}
 
@@ -67,15 +78,16 @@ public abstract class Envelope {
 		encodeHeader(byteBuf);
 		encodeBody(byteBuf);
 	}
+	
+
 
 	public void encodeHeader(ByteBuf byteBuf) {
-
 		byteBuf.writeBytes(FLAG);
 		byteBuf.writeInt(getLength());
 		byteBuf.writeShort(type.getValue());
 		byteBuf.writeByte(index);
 		byteBuf.writeByte(operator);
-		byteBuf.writeLong(key);
+		byteBuf.writeInt(key);
 		if (privateKey != null) {
 			privateKey.encodeAsByteBuf(byteBuf);
 		} else {
@@ -88,8 +100,21 @@ public abstract class Envelope {
 		return HEADER_LEN + getBodyLength();
 	}
 
-	public abstract int getBodyLength();
+	public int getBodyLength(){
+		return 0;
+	}
 
-	public abstract void encodeBody(ByteBuf byteBuf);
+	public void encodeBody(ByteBuf byteBuf){
+		
+	}
+
+	@Override
+	public String toString() {
+		return "Envelope [type=" + type + ", index=" + index + ", operator="
+				+ operator + ", key=" + key + ", privateKey=" + privateKey
+				+ "]";
+	}
+	
+	
 
 }

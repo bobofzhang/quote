@@ -10,7 +10,15 @@ public class CodeInfo {
 	public CodeInfo() {
 		super();
 	}
-
+	public CodeInfo(ByteBuf buf) {
+		super();
+		this.market = buf.readShort();
+		byte[] c = new byte[6];
+		buf.readBytes(c);
+		this.code = new String(c);
+	}
+	
+	
 	public CodeInfo(short market, String code) {
 		super();
 		this.market = market;

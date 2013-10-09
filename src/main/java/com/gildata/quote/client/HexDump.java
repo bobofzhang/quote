@@ -1,28 +1,21 @@
 package com.gildata.quote.client;
 
 import io.netty.buffer.ByteBuf;
-import io.netty.channel.ChannelHandler.Sharable;
-import io.netty.channel.ChannelHandlerContext;
-import io.netty.channel.SimpleChannelInboundHandler;
-import io.netty.util.internal.logging.InternalLogger;
-import io.netty.util.internal.logging.InternalLoggerFactory;
 
-import org.springframework.stereotype.Component;
+/**
+ * 
+ * @author luhuiguo
+ *
+ */
+public class HexDump {
 
-@Component
-@Sharable
-public class QuoteClientHandler extends SimpleChannelInboundHandler<Object> {
-
-	
-	private static final InternalLogger logger = InternalLoggerFactory.getInstance(QuoteClientHandler.class);  
-	  
     private static final String NEWLINE = String.format("%n");
 
     private static final String[] BYTE2HEX = new String[256];
     private static final String[] HEXPADDING = new String[16];
     private static final String[] BYTEPADDING = new String[16];
     private static final char[] BYTE2CHAR = new char[256];
-
+    
     static {
         int i;
 
@@ -75,33 +68,22 @@ public class QuoteClientHandler extends SimpleChannelInboundHandler<Object> {
             }
         }
     }
-	
-	@Override
-	protected void channelRead0(ChannelHandlerContext ctx, Object msg)
-			throws Exception {
-
-		if(msg instanceof ByteBuf){
-			logger.debug("READ: {}",formatByteBuf("ByteBuf:",(ByteBuf) msg));
-		}else{
-			logger.debug("READ: {}",msg);
-		}
-		
-		
-	}
-	
-    protected String formatByteBuf(String eventName, ByteBuf buf) {
-        int length = buf.readableBytes();
+    
+    
+    
+    public static String dump(byte[] buf){
+    	int length = buf.length;
         int rows = length / 16 + (length % 15 == 0? 0 : 1) + 4;
-        StringBuilder dump = new StringBuilder(rows * 80 + eventName.length() + 16);
+        StringBuilder dump = new StringBuilder(rows * 80  + 16);
 
-        dump.append(eventName).append('(').append(length).append('B').append(')');
+        dump.append('(').append(length).append('B').append(')');
         dump.append(
                 NEWLINE + "         +-------------------------------------------------+" +
                         NEWLINE + "         |  0  1  2  3  4  5  6  7  8  9  a  b  c  d  e  f |" +
                         NEWLINE + "+--------+-------------------------------------------------+----------------+");
 
-        final int startIndex = buf.readerIndex();
-        final int endIndex = buf.writerIndex();
+        final int startIndex = 0;
+        final int endIndex = length;
 
         int i;
         for (i = startIndex; i < endIndex; i ++) {
@@ -113,11 +95,11 @@ public class QuoteClientHandler extends SimpleChannelInboundHandler<Object> {
                 dump.setCharAt(dump.length() - 9, '|');
                 dump.append('|');
             }
-            dump.append(BYTE2HEX[buf.getUnsignedByte(i)]);
+            dump.append(BYTE2HEX[buf[i] & 0xFF]);
             if (relIdxMod16 == 15) {
                 dump.append(" |");
                 for (int j = i - 15; j <= i; j ++) {
-                    dump.append(BYTE2CHAR[buf.getUnsignedByte(j)]);
+                    dump.append(BYTE2CHAR[buf[j] & 0xFF]);
                 }
                 dump.append('|');
             }
@@ -128,7 +110,7 @@ public class QuoteClientHandler extends SimpleChannelInboundHandler<Object> {
             dump.append(HEXPADDING[remainder]);
             dump.append(" |");
             for (int j = i - remainder; j < i; j ++) {
-                dump.append(BYTE2CHAR[buf.getUnsignedByte(j)]);
+                dump.append(BYTE2CHAR[buf[j] & 0xFF]);
             }
             dump.append(BYTEPADDING[remainder]);
             dump.append('|');
@@ -137,7 +119,59 @@ public class QuoteClientHandler extends SimpleChannelInboundHandler<Object> {
         dump.append(
                 NEWLINE + "+--------+-------------------------------------------------+----------------+");
 
-        return dump.toString();
+        return dump.toString();    	
     }
+	
+    
+    public static String dump(ByteBuf buf) {
+            int length = buf.readableBytes();
+            int rows = length / 16 + (length % 15 == 0? 0 : 1) + 4;
+            StringBuilder dump = new StringBuilder(rows * 80 + 16);
 
+            dump.append('(').append(length).append('B').append(')');
+            dump.append(
+                    NEWLINE + "         +-------------------------------------------------+" +
+                            NEWLINE + "         |  0  1  2  3  4  5  6  7  8  9  a  b  c  d  e  f |" +
+                            NEWLINE + "+--------+-------------------------------------------------+----------------+");
+
+            final int startIndex = buf.readerIndex();
+            final int endIndex = buf.writerIndex();
+
+            int i;
+            for (i = startIndex; i < endIndex; i ++) {
+                int relIdx = i - startIndex;
+                int relIdxMod16 = relIdx & 15;
+                if (relIdxMod16 == 0) {
+                    dump.append(NEWLINE);
+                    dump.append(Long.toHexString(relIdx & 0xFFFFFFFFL | 0x100000000L));
+                    dump.setCharAt(dump.length() - 9, '|');
+                    dump.append('|');
+                }
+                dump.append(BYTE2HEX[buf.getUnsignedByte(i)]);
+                if (relIdxMod16 == 15) {
+                    dump.append(" |");
+                    for (int j = i - 15; j <= i; j ++) {
+                        dump.append(BYTE2CHAR[buf.getUnsignedByte(j)]);
+                    }
+                    dump.append('|');
+                }
+            }
+
+            if ((i - startIndex & 15) != 0) {
+                int remainder = length & 15;
+                dump.append(HEXPADDING[remainder]);
+                dump.append(" |");
+                for (int j = i - remainder; j < i; j ++) {
+                    dump.append(BYTE2CHAR[buf.getUnsignedByte(j)]);
+                }
+                dump.append(BYTEPADDING[remainder]);
+                dump.append('|');
+            }
+
+            dump.append(
+                    NEWLINE + "+--------+-------------------------------------------------+----------------+");
+
+            return dump.toString();
+        }
+	
 }

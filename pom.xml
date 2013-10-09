@@ -41,15 +41,15 @@
 		<spring.version>4.0.0.BUILD-SNAPSHOT</spring.version>
 		<spring.security.version>3.2.0.CI-SNAPSHOT</spring.security.version>
 
-		<reactor.version>1.0.0.M2</reactor.version>
-		<netty.version>4.0.9.Final</netty.version>
+		<reactor.version>1.0.0.RC1</reactor.version>
+		<netty.version>4.0.10.Final</netty.version>
 		<javassist.version>3.18.0-GA</javassist.version>
 
 		<jackson.version>2.2.2</jackson.version>
 
 		<glassfish.version>4.0</glassfish.version>
-		<jetty.version>9.0.5.v20130815</jetty.version>
-		<tomcat.version>8.0.0-RC1</tomcat.version>
+		<jetty.version>9.0.6.v20130930</jetty.version>
+		<tomcat.version>8.0.0-RC3</tomcat.version>
 		<tomcat.maven.plugin.version>2.1</tomcat.maven.plugin.version>
 
 	</properties>

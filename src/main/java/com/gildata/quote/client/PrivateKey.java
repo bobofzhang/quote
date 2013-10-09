@@ -10,6 +10,11 @@ public class PrivateKey {
 		super();
 		this.codeInfo = codeInfo;
 	}
+	
+	public PrivateKey(ByteBuf buf) {
+		super();
+		this.codeInfo = new CodeInfo(buf);
+	}
 
 	public CodeInfo getCodeInfo() {
 		return codeInfo;

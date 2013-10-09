@@ -43,6 +43,7 @@ public class QuoteClientTest {
 		try {
 			client.start();
 			client.login();
+			client.stop();
 		} catch (Exception e) {
 			fail("Exception");
 			e.printStackTrace();
