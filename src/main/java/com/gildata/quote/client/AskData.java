@@ -28,7 +28,7 @@ public class AskData extends Envelope {
 	}
 
 	@Override
-	public void encodeBody(ByteBuf byteBuf) {
+	public void encode(ByteBuf byteBuf) {
 		if (codes != null) {
 			byteBuf.writeShort(codes.length);
 			byteBuf.writeShort(0);
@@ -37,15 +37,6 @@ public class AskData extends Envelope {
 			}
 
 		}
-	}
-
-	@Override
-	public int getBodyLength() {
-		int len = 0;
-		if (codes != null) {
-			len = 4 + 8 * codes.length;
-		}
-		return len;
 	}
 
 	@Override

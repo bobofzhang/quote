@@ -1,12 +1,10 @@
 package com.gildata.quote.client;
 
-import java.nio.ByteOrder;
-
+import io.netty.channel.Channel;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelPipeline;
-import io.netty.channel.socket.SocketChannel;
-import io.netty.handler.codec.LengthFieldBasedFrameDecoder;
 import io.netty.handler.logging.LoggingHandler;
+import io.netty.handler.timeout.IdleStateHandler;
 import io.netty.util.internal.logging.InternalLoggerFactory;
 import io.netty.util.internal.logging.Slf4JLoggerFactory;
 
@@ -14,30 +12,38 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component
-public class QuoteClientInitializer extends ChannelInitializer<SocketChannel> {
+public class QuoteClientInitializer extends ChannelInitializer<Channel> {
 	
 	@Autowired
 	private LoggingHandler loggingHandler;
 	
 	@Autowired
-	private EnvelopeEncoder envelopeEncoder;
+	private EnvelopeEncoder encoder;
 	
 	@Autowired
-	private EnvelopeDecoder envelopeDecoder;
-
+	private EnvelopeDecoder decoder;
 	
 	@Autowired
-	private QuoteClientHandler quoteClientHandler;
+	private QuoteClientHandler clientHandler;
+	
+	@Autowired
+	private IdleStateHandler idleStateHandler;
+	
+	@Autowired
+	private KeepActiveHandler keepActiveHandler;
 
 	
 	@Override
-	protected void initChannel(SocketChannel ch) throws Exception {
+	protected void initChannel(Channel ch) throws Exception {
 		ChannelPipeline pipeline = ch.pipeline();
 		InternalLoggerFactory.setDefaultFactory(new Slf4JLoggerFactory());
 		pipeline.addLast("logger", loggingHandler);
-		pipeline.addLast("decoder", envelopeDecoder);
-		pipeline.addLast("encoder", envelopeEncoder);		
-		pipeline.addLast("handler", quoteClientHandler);
+
+		pipeline.addLast("decoder", decoder);
+		pipeline.addLast("encoder", encoder);	
+		pipeline.addLast("idleState", idleStateHandler);
+		pipeline.addLast("keepActive", keepActiveHandler);
+		pipeline.addLast("handler", clientHandler);
 	}
 
 }

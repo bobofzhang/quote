@@ -5,6 +5,7 @@ import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioSocketChannel;
 import io.netty.handler.logging.LogLevel;
 import io.netty.handler.logging.LoggingHandler;
+import io.netty.handler.timeout.IdleStateHandler;
 
 import java.net.InetSocketAddress;
 
@@ -58,6 +59,10 @@ public class RootConfig {
 		return new LoggingHandler(LogLevel.INFO);
 	}
 
+	@Bean(name = "idleStateHandler")
+	public IdleStateHandler idleStateHandler() {
+		return new IdleStateHandler(0, 60, 0);
+	}
 
 	@Bean
 	public static PropertySourcesPlaceholderConfigurer propertySourcesPlaceholderConfigurer() {

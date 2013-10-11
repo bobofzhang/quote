@@ -1,8 +1,10 @@
 package com.gildata.quote.client;
 
+import java.nio.ByteOrder;
 import java.util.Arrays;
 
 import io.netty.buffer.ByteBuf;
+import io.netty.buffer.Unpooled;
 
 public class CompAskData extends Envelope{
 
@@ -14,24 +16,15 @@ public class CompAskData extends Envelope{
 	}
 
 	@Override
-	public int getBodyLength() {
-		int len = 0;
-		if (asks != null) {
-			len = 2 + 2 * asks.length;
-			for (Envelope ask:asks){
-				len+=ask.getLength();
-			}
-		}
-		return len;
-	}
-
-	@Override
-	public void encodeBody(ByteBuf byteBuf) {
+	public void encode(ByteBuf byteBuf) {
 		if (asks != null) {
 			byteBuf.writeShort(asks.length);
 			
 			for (Envelope ask:asks){
-				byteBuf.writeShort(ask.getLength());
+				ByteBuf data = Unpooled.buffer(512).order(ByteOrder.LITTLE_ENDIAN);
+				ask.encodeAsByteBuf(data);
+				byteBuf.writeShort(data.readableBytes());
+				
 			}
 			for (Envelope ask:asks){
 				ask.encodeAsByteBuf(byteBuf);

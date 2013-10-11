@@ -18,7 +18,8 @@ public class EnvelopeDecoder extends LengthFieldBasedFrameDecoder {
 	private static final InternalLogger logger = InternalLoggerFactory
 			.getInstance(EnvelopeDecoder.class);
 	
-    private final Inflater inflater;
+	private static final String name = "ENVELOPE_DECODER";
+	
 
 	public EnvelopeDecoder() {
 		this(1048576);
@@ -26,10 +27,11 @@ public class EnvelopeDecoder extends LengthFieldBasedFrameDecoder {
 
 	public EnvelopeDecoder(int maxFrameLength) {
 		super(ByteOrder.LITTLE_ENDIAN, maxFrameLength, 4, 4, 0, 8, true);
-		inflater = new Inflater();
-
-
 	}
+	
+    public static String getName() {
+        return name;
+    }
 
 	@Override
 	protected Object decode(ChannelHandlerContext ctx, ByteBuf in)
@@ -45,7 +47,7 @@ public class EnvelopeDecoder extends LengthFieldBasedFrameDecoder {
 	private Object getObject(ByteBuf frame) throws Exception {
 		frame = frame.order(ByteOrder.LITTLE_ENDIAN);
 		EnvelopeType type = EnvelopeType.fromValue(frame.readShort());
-		logger.debug("type:{}",type);
+		logger.debug("decode type:{}",type);
 		switch (type) {
 		case RT_ZIPDATA:
 			return getObject(decompress(frame));
@@ -69,10 +71,10 @@ public class EnvelopeDecoder extends LengthFieldBasedFrameDecoder {
 		byte[] compressed = new byte[zipLen];
 		byte[] decompressed = new byte[orgLen];
 		in.readBytes(compressed);
-		
+		Inflater inflater = new Inflater();
 		inflater.setInput(compressed);
 		int numBytes = inflater.inflate(decompressed);
-		
+		inflater.end();
 		logger.debug("decompressed : {}", HexDump.dump(decompressed));
 		
 		ByteBuf out = Unpooled.buffer(numBytes);
@@ -80,13 +82,5 @@ public class EnvelopeDecoder extends LengthFieldBasedFrameDecoder {
 		return out;
 
 	}
-
-	@Override
-	protected void handlerRemoved0(ChannelHandlerContext ctx) throws Exception {
-		super.handlerRemoved0(ctx);
-		inflater.end();
-	}
-	
-	
 
 }

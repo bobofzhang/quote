@@ -2,11 +2,13 @@ package com.gildata.quote.client;
 
 import static com.gildata.quote.client.QuoteConstants.FLAG;
 import static com.gildata.quote.client.QuoteConstants.HEADER_LEN;
+
+import java.nio.ByteOrder;
+
 import io.netty.buffer.ByteBuf;
+import io.netty.buffer.Unpooled;
 
 public class Envelope {
-	
-	//private static final Logger logger = LoggerFactory.getLogger(Envelope.class);
 
 	protected final EnvelopeType type;
 	protected byte index;
@@ -75,15 +77,12 @@ public class Envelope {
 	}
 
 	public void encodeAsByteBuf(ByteBuf byteBuf) {
-		encodeHeader(byteBuf);
-		encodeBody(byteBuf);
-	}
-	
 
+		ByteBuf data = Unpooled.buffer(512).order(ByteOrder.LITTLE_ENDIAN);
+		encode(data);
 
-	public void encodeHeader(ByteBuf byteBuf) {
 		byteBuf.writeBytes(FLAG);
-		byteBuf.writeInt(getLength());
+		byteBuf.writeInt(HEADER_LEN + data.readableBytes());
 		byteBuf.writeShort(type.getValue());
 		byteBuf.writeByte(index);
 		byteBuf.writeByte(operator);
@@ -93,18 +92,11 @@ public class Envelope {
 		} else {
 			byteBuf.writeZero(8);
 		}
-
+		byteBuf.writeBytes(data);
+		
 	}
 
-	public int getLength() {
-		return HEADER_LEN + getBodyLength();
-	}
-
-	public int getBodyLength(){
-		return 0;
-	}
-
-	public void encodeBody(ByteBuf byteBuf){
+	public void encode(ByteBuf byteBuf){
 		
 	}
 

@@ -1,9 +1,7 @@
 package com.gildata.quote.client;
 
+import static com.gildata.quote.client.QuoteConstants.GB18030;
 import io.netty.buffer.ByteBuf;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class ReqLogin extends Envelope{
 	
@@ -20,7 +18,6 @@ public class ReqLogin extends Envelope{
 		this.username = username;
 		this.password = password;
 	}
-
 
 
 	public String getUsername() {
@@ -45,20 +42,13 @@ public class ReqLogin extends Envelope{
 		this.password = password;
 	}
 
-
-
 	@Override
-	public int getBodyLength() {
-		return 132;
-	}
-
-	@Override
-	public void encodeBody(ByteBuf byteBuf) {
+	public void encode(ByteBuf byteBuf) {
 		 
 		byteBuf.writeShort(16);
 		byteBuf.writeShort(0);
 		if (username != null) {
-			byte[] b = username.getBytes();
+			byte[] b = username.getBytes(GB18030);
 			int len = b.length;
 			if (len > 64) {
 				byteBuf.writeBytes(b, 0, 64);
@@ -73,7 +63,7 @@ public class ReqLogin extends Envelope{
 		}
 		
 		if (password != null) {
-			byte[] b = password.getBytes();
+			byte[] b = password.getBytes(GB18030);
 			int len = b.length;
 			if (len > 64) {
 				byteBuf.writeBytes(b, 0, 64);
