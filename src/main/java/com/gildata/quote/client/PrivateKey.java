@@ -1,8 +1,11 @@
 package com.gildata.quote.client;
 
+import org.apache.commons.lang3.builder.ToStringBuilder;
+import org.apache.commons.lang3.builder.ToStringStyle;
+
 import io.netty.buffer.ByteBuf;
 
-public class PrivateKey {
+public class PrivateKey implements Encodable{
 	
 	private CodeInfo codeInfo;
 	
@@ -26,17 +29,12 @@ public class PrivateKey {
 	
 	
 	public void encodeAsByteBuf(ByteBuf byteBuf) {
-		if (codeInfo != null){
-			codeInfo.encodeAsByteBuf(byteBuf);
-		}else{
-			byteBuf.writeZero(8);
-		}
-		
+		QuoteUtils.writeEncodable(byteBuf, codeInfo, 8);
 	}
 
 	@Override
 	public String toString() {
-		return "PrivateKey [codeInfo=" + codeInfo + "]";
+		return ToStringBuilder.reflectionToString(this, ToStringStyle.SHORT_PREFIX_STYLE);
 	}
 	
 	

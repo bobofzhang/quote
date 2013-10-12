@@ -2,7 +2,7 @@ package com.gildata.quote.client;
 
 import io.netty.buffer.ByteBuf;
 
-public class ServerCompare {
+public class ServerCompare implements Encodable{
 	
 	private short bourse = MarketType.STOCK_MARKET;
 	private int crc;
@@ -23,7 +23,7 @@ public class ServerCompare {
 	
 	public void encodeAsByteBuf(ByteBuf byteBuf) {
 		byteBuf.writeShort(bourse);
-		byteBuf.writeZero(2);
+		byteBuf.writeShort(0);
 		byteBuf.writeInt(crc);
 		
 	}

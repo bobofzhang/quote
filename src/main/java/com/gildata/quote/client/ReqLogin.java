@@ -5,9 +5,9 @@ import io.netty.buffer.ByteBuf;
 
 public class ReqLogin extends Envelope{
 	
-	private String username;
+	private String username = "";
 	
-	private String password;
+	private String password = "";
 
 	public ReqLogin() {
 		super(EnvelopeType.RT_LOGIN);
@@ -47,35 +47,11 @@ public class ReqLogin extends Envelope{
 		 
 		byteBuf.writeShort(16);
 		byteBuf.writeShort(0);
-		if (username != null) {
-			byte[] b = username.getBytes(GB18030);
-			int len = b.length;
-			if (len > 64) {
-				byteBuf.writeBytes(b, 0, 64);
-			} else {
-				byteBuf.writeBytes(b);
-				if (len < 64) {
-					byteBuf.writeZero(64 - len);
-				}
-			}
-		} else {
-			byteBuf.writeZero(64);
-		}
 		
-		if (password != null) {
-			byte[] b = password.getBytes(GB18030);
-			int len = b.length;
-			if (len > 64) {
-				byteBuf.writeBytes(b, 0, 64);
-			} else {
-				byteBuf.writeBytes(b);
-				if (len < 64) {
-					byteBuf.writeZero(64 - len);
-				}
-			}
-		} else {
-			byteBuf.writeZero(64);
-		}
+		QuoteUtils.writeString(byteBuf, username, 64, GB18030);
+		QuoteUtils.writeString(byteBuf, password, 64, GB18030);
+		
+
 	}
 
 }

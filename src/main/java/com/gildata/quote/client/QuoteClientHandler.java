@@ -27,7 +27,7 @@ public class QuoteClientHandler extends ChannelInboundHandlerAdapter {
 	public void channelRead(ChannelHandlerContext ctx, Object msg)
 			throws Exception {
 		
-		logger.debug("READ: {}", msg);
+		logger.trace("READ: {}", msg);
 		
 		if(msg instanceof AnsLogin){
 			ReqInitSrv req= new ReqInitSrv();

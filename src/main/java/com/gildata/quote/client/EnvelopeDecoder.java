@@ -53,7 +53,8 @@ public class EnvelopeDecoder extends LengthFieldBasedFrameDecoder {
 			return getObject(decompress(frame));
 		case RT_LOGIN:		
 			return new AnsLogin(frame);
-
+		case RT_INITIALINFO:		
+			return new AnsInitialData(frame);
 		default:
 			return null;
 
@@ -75,7 +76,7 @@ public class EnvelopeDecoder extends LengthFieldBasedFrameDecoder {
 		inflater.setInput(compressed);
 		int numBytes = inflater.inflate(decompressed);
 		inflater.end();
-		logger.debug("decompressed : {}", HexDump.dump(decompressed));
+		logger.trace("decompressed : {}", HexDump.dump(decompressed));
 		
 		ByteBuf out = Unpooled.buffer(numBytes);
 		out.writeBytes(decompressed, 0, numBytes);

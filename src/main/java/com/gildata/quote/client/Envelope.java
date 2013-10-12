@@ -8,7 +8,7 @@ import java.nio.ByteOrder;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 
-public class Envelope {
+public class Envelope implements Encodable{
 
 	protected final EnvelopeType type;
 	protected byte index;
@@ -87,11 +87,7 @@ public class Envelope {
 		byteBuf.writeByte(index);
 		byteBuf.writeByte(operator);
 		byteBuf.writeInt(key);
-		if (privateKey != null) {
-			privateKey.encodeAsByteBuf(byteBuf);
-		} else {
-			byteBuf.writeZero(8);
-		}
+		QuoteUtils.writeEncodable(byteBuf, privateKey, 8);
 		byteBuf.writeBytes(data);
 		
 	}
