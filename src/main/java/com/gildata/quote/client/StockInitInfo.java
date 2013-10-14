@@ -18,14 +18,13 @@ public class StockInitInfo implements Encodable {
 
 	private int fiveDayVol;
 
-	public StockInitInfo(ByteBuf buf) {
+	public StockInitInfo(ByteBuf byteBuf) {
 		super();
-		this.stockName = buf.toString(buf.readerIndex(), STOCK_NAME_SIZE,
-				GB18030).trim();
-		buf.skipBytes(STOCK_NAME_SIZE);
-		this.stockCode = new CodeInfo(buf);
-		this.prevClose = buf.readInt();
-		this.fiveDayVol = buf.readInt();
+		this.stockName = QuoteUtils.readString(byteBuf, STOCK_NAME_SIZE,
+				GB18030);
+		this.stockCode = new CodeInfo(byteBuf);
+		this.prevClose = byteBuf.readInt();
+		this.fiveDayVol = byteBuf.readInt();
 
 	}
 
@@ -73,11 +72,9 @@ public class StockInitInfo implements Encodable {
 
 	@Override
 	public String toString() {
-		return ToStringBuilder.reflectionToString(this, ToStringStyle.MULTI_LINE_STYLE);
-		
-//		return "StockInitInfo [stockName=" + stockName + ", stockCode="
-//				+ stockCode + ", prevClose=" + prevClose + ", fiveDayVol="
-//				+ fiveDayVol + "]";
+		return ToStringBuilder.reflectionToString(this,
+				ToStringStyle.MULTI_LINE_STYLE);
+
 	}
 
 }

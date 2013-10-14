@@ -6,6 +6,13 @@ import java.nio.charset.Charset;
 
 public class QuoteUtils {
 	
+	public static String readString(ByteBuf byteBuf,int length, Charset charset){
+		String ret = byteBuf.toString(byteBuf.readerIndex(), length, charset).trim();
+		byteBuf.skipBytes(length);
+		return ret;
+		
+	}
+	
 	public static void writeString(ByteBuf byteBuf,String str, int length, Charset charset){
 		if (str != null) {
 			byte[] b = str.getBytes(charset);

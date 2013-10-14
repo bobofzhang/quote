@@ -31,12 +31,12 @@ public class Envelope implements Encodable{
 		this.privateKey = privateKey;
 	}
 	
-	public Envelope(EnvelopeType type,ByteBuf buf) {
+	public Envelope(EnvelopeType type,ByteBuf byteBuf) {
 		this(type);
-		this.index = buf.readByte();
-		this.operator = buf.readByte();
-		this.key = buf.readInt();
-		this.privateKey = new PrivateKey(buf);
+		this.index = byteBuf.readByte();
+		this.operator = byteBuf.readByte();
+		this.key = byteBuf.readInt();
+		this.privateKey = new PrivateKey(byteBuf);
 		
 	}
 
@@ -69,6 +69,9 @@ public class Envelope implements Encodable{
 	}
 
 	public PrivateKey getPrivateKey() {
+		if (privateKey == null){
+			privateKey = new PrivateKey(new CodeInfo());
+		}
 		return privateKey;
 	}
 

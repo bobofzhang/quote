@@ -10,10 +10,10 @@ public class Time implements Encodable {
 	private short openTime;
 	private short closeTime;
 
-	public Time(ByteBuf buf) {
+	public Time(ByteBuf byteBuf) {
 		super();
-		this.openTime = buf.readShort();
-		this.closeTime = buf.readShort();
+		this.openTime = byteBuf.readShort();
+		this.closeTime = byteBuf.readShort();
 	}
 	
 	public short getOpenTime() {

@@ -1,5 +1,8 @@
 package com.gildata.quote.client;
 
+import org.apache.commons.lang3.builder.ToStringBuilder;
+import org.apache.commons.lang3.builder.ToStringStyle;
+
 import io.netty.buffer.ByteBuf;
 
 public class AnsKeepActive extends Envelope {
@@ -10,17 +13,26 @@ public class AnsKeepActive extends Envelope {
 		super(EnvelopeType.RT_KEEPACTIVE);
 	}
 	
-	public AnsKeepActive(ByteBuf buf) {
+	public AnsKeepActive(ByteBuf byteBuf) {
 		super(EnvelopeType.RT_KEEPACTIVE);
-		this.index = buf.readByte();
-		this.operator = buf.readByte();
-		this.time = buf.readInt();
+		this.index = byteBuf.readByte();
+		this.operator = byteBuf.readByte();
+		this.time = byteBuf.readInt();
+	}
+	
+	
+
+	public int getTime() {
+		return time;
+	}
+
+	public void setTime(int time) {
+		this.time = time;
 	}
 
 	@Override
 	public String toString() {
-		return "AnsKeepActive [type=" + type + ", index=" + index
-				+ ", operator=" + operator + ", time=" + time + "]";
+		return ToStringBuilder.reflectionToString(this, ToStringStyle.SHORT_PREFIX_STYLE);
 	}
 
 }

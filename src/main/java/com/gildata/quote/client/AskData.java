@@ -1,8 +1,11 @@
 package com.gildata.quote.client;
 
-import java.util.Arrays;
-
 import io.netty.buffer.ByteBuf;
+
+import java.util.List;
+
+import org.apache.commons.lang3.builder.ToStringBuilder;
+import org.apache.commons.lang3.builder.ToStringStyle;
 
 public class AskData extends Envelope {
 
@@ -17,7 +20,10 @@ public class AskData extends Envelope {
 		super(type);
 		this.codes = codes;
 	}
-
+	
+	public AskData(EnvelopeType type, List<CodeInfo> codes) {
+		this(type,codes.toArray(new CodeInfo[codes.size()]));
+	}
 
 	public CodeInfo[] getCodes() {
 		return codes;
@@ -41,8 +47,7 @@ public class AskData extends Envelope {
 
 	@Override
 	public String toString() {
-		return "AskData [codes=" + Arrays.toString(codes) + ", type=" + type
-				+ "]";
+		return ToStringBuilder.reflectionToString(this, ToStringStyle.MULTI_LINE_STYLE);
 	}
 	
 	

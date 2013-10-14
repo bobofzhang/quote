@@ -20,16 +20,16 @@ public class AnsInitialData extends Envelope{
 		super(EnvelopeType.RT_INITIALINFO);
 	}
 	
-	public AnsInitialData(ByteBuf buf) {
-		super(EnvelopeType.RT_INITIALINFO, buf);
+	public AnsInitialData(ByteBuf byteBuf) {
+		super(EnvelopeType.RT_INITIALINFO, byteBuf);
 		
-	    size = buf.readShort();
-		opertion = buf.readShort();
+	    size = byteBuf.readShort();
+		opertion = byteBuf.readShort();
 		
 		marketDatas = new ArrayList<OneMarketData>(size);
 
 		for (int i = 0; i < size; i++) {
-			marketDatas.add(new OneMarketData(buf));
+			marketDatas.add(new OneMarketData(byteBuf));
 		}
 
 	}

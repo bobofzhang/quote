@@ -15,11 +15,10 @@ public class CodeInfo implements Encodable{
 	public CodeInfo() {
 		super();
 	}
-	public CodeInfo(ByteBuf buf) {
+	public CodeInfo(ByteBuf byteBuf) {
 		super();
-		this.market = buf.readShort();
-		this.code = buf.toString(buf.readerIndex(), CODE_LEN, GB18030).trim();
-		buf.skipBytes(CODE_LEN);
+		this.market = byteBuf.readShort();
+		this.code = QuoteUtils.readString(byteBuf, CODE_LEN, GB18030);
 	}
 	
 	
@@ -29,7 +28,7 @@ public class CodeInfo implements Encodable{
 		this.code = code;
 	}
 
-	public int getMarket() {
+	public short getMarket() {
 		return market;
 	}
 

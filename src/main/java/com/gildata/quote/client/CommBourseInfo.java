@@ -19,20 +19,18 @@ public class CommBourseInfo implements Encodable {
 	private int crc;
 	private List<StockType> newTypes;
 
-	public CommBourseInfo(ByteBuf buf) {
+	public CommBourseInfo(ByteBuf byteBuf) {
 		super();
-		typeName = buf.toString(buf.readerIndex(), STOCK_TYPE_NAME_SIZE,
-				GB18030).trim();
-		buf.skipBytes(STOCK_TYPE_NAME_SIZE);
-		marketType = buf.readShort();
-		count = buf.readShort();
-		date = buf.readInt();
-		crc = buf.readInt();
+		typeName = QuoteUtils.readString(byteBuf, STOCK_TYPE_NAME_SIZE, GB18030);
+		marketType = byteBuf.readShort();
+		count = byteBuf.readShort();
+		date = byteBuf.readInt();
+		crc = byteBuf.readInt();
 
 		newTypes = new ArrayList<StockType>(count);
 
 		for (int i = 0; i < count; i++) {
-			newTypes.add(new StockType(buf));
+			newTypes.add(new StockType(byteBuf));
 		}
 
 	}

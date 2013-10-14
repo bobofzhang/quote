@@ -20,19 +20,17 @@ public class StockType implements Encodable {
 
 	private Time[] times = new Time[12];
 
-	public StockType(ByteBuf buf) {
+	public StockType(ByteBuf byteBuf) {
 		super();
-		stockTypeName = buf.toString(buf.readerIndex(), STOCK_TYPE_NAME_SIZE,
-				GB18030).trim();
-		buf.skipBytes(STOCK_TYPE_NAME_SIZE);
-		stockType = buf.readShort();
-		total = buf.readShort();
-		offset = buf.readShort();
-		priceUnit = buf.readShort();
-		totalTime = buf.readShort();
-		curTime = buf.readShort();
-		for (int i = 0; i < 12; i++) {
-			times[i] = new Time(buf);
+		stockTypeName = QuoteUtils.readString(byteBuf, STOCK_TYPE_NAME_SIZE, GB18030);
+		stockType = byteBuf.readShort();
+		total = byteBuf.readShort();
+		offset = byteBuf.readShort();
+		priceUnit = byteBuf.readShort();
+		totalTime = byteBuf.readShort();
+		curTime = byteBuf.readShort();
+		for (int i = 0; i < times.length; i++) {
+			times[i] = new Time(byteBuf);
 		}
 
 	}
