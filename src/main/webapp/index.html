@@ -1,112 +1,93 @@
 <!DOCTYPE html>
-<html>
-<head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta http-equiv="Cache-Control"
-	content="no-store, no-cache, must-revalidate, max-age=0">
-<title>我的组合</title>
-<link href="assets/css/portfolio.css" rel="stylesheet" media="screen">
-<link href="assets/css/bootstrap.css" rel="stylesheet" media="screen">
-<link href="assets/css/bootstrap-glyphicons.css" rel="stylesheet"
-	media="screen">
+<html lang="zh">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <link rel="shortcut icon" href="assets/ico/favicon.ico">
 
-<!-- Favicons -->
-<link rel="apple-touch-icon-precomposed" sizes="144x144"
-	href="assets/ico/apple-touch-icon-144-precomposed.png">
-<link rel="apple-touch-icon-precomposed" sizes="114x114"
-	href="assets/ico/apple-touch-icon-114-precomposed.png">
-<link rel="apple-touch-icon-precomposed" sizes="72x72"
-	href="assets/ico/apple-touch-icon-72-precomposed.png">
-<link rel="apple-touch-icon-precomposed"
-	href="assets/ico/apple-touch-icon-57-precomposed.png">
-<link rel="shortcut icon" href="assets/ico/favicon.ico">
-</head>
-<body>
+    <title>行情测试</title>
 
-	<div class="container">
-		<div id="heading" class="masthead">
-			<div class="pull-right">
-				<form class="form-inline" action="logout.html" method="post">
-				  <span class="text-info" data-bind="text: username"><em></em></span>&nbsp;
-                  <button class="btn btn-danger" type="submit"><i class="glyphicon glyphicon-off"></i></button>
-                </form>
-			</div>
-			<h3 class="text-muted">我的组合</h3>
-		</div>
-		<div id="main-content">
-			<table class="table table-striped">
-				<thead>
-					<tr>
-						<th>名称</th>
-						<th>代码</th>
-						<th class="number">价格</th>
-						<th class="number">涨跌</th>
-						<th>%</th>
-						<th></th>
-					</tr>
-				</thead>
-				<tbody data-bind="foreach: portfolio().rows">
-					<tr>
-						<td data-bind="text: company"></td>
-						<td data-bind="text: ticker"></td>
-						<td data-bind="text: formattedPrice" class="number"></td>
-						<td
-							data-bind="text: change, style: {color: change() < 0 ? 'green' : 'red'}"
-							class="number"></td>
-						<td data-bind="html: arrow" class="icon"></td>
-						<td class="trade-buttons">
-							<button class="btn btn-primary"
-								data-bind="click: $root.trend().showTrend">走势</button>
-						</td>
-					</tr>
-				</tbody>
-				<tfoot>
-				</tfoot>
-			</table>
-		</div>
-	</div>
+    <!-- Bootstrap core CSS -->
+    <link href="assets/lib/bootstrap/css/bootstrap.css" rel="stylesheet">
+    
+    <link href="assets/lib/typeahead/typeahead.js-bootstrap.css" rel="stylesheet">
 
-	<div id="trend-dialog" class="modal fade" tabindex="-1" role="dialog">
-		<div class="modal-dialog">
-			<div class="modal-content">
-				<div class="modal-header">
-					<button type="button" class="close" data-dismiss="modal"
-						aria-hidden="true">&times;</button>
-					<h4 class="modal-title"><span data-bind="text: trend().currentRow().company"></span></h4>
-				</div>
-				<div class="modal-body">
-					<div id="chart" style="height: 400px; min-width: 500px"></div>
-				</div>
-				<div class="modal-footer">
-					<button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
-				</div>
-			</div>
-		</div>
-	</div>
+    <!-- Custom styles for this template -->
+    <link href="assets/css/quote.css" rel="stylesheet">
 
+    <!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!--[if lt IE 9]>
+      <script src="assets/lib/html5shiv/html5shiv.js"></script>
+      <script src="assets/lib/respond/respond.min.js"></script>
+    <![endif]-->
+  </head>
 
-	<!-- 3rd party -->
-	<script src="assets/js/jquery-2.0.3.min.js"></script>
-	<script src="assets/js/bootstrap.min.js"></script>
-	<script src="assets/js/knockout-2.3.0.js"></script>
-	<script src="assets/js/sockjs-0.3.4.min.js"></script>
-	<script src="assets/js/stomp.min.js"></script>
-	<script src="assets/js/highstock.js"></script>
+  <body>
 
-	<!-- application -->
-	<script src="assets/js/portfolio.js"></script>
-	<script type="text/javascript">
-		(function() {
-			var socket = new SockJS('/portfolio');
-			var stompClient = Stomp.over(socket);
+    <div class="navbar navbar-inverse navbar-fixed-top">
+      <div class="container">
+        <div class="navbar-header">
+          <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+          <a class="navbar-brand" href="#">行情测试</a>
+        </div>
+        <div class="navbar-collapse collapse">
+          <ul class="nav navbar-nav">
+          </ul>
+          <form class="navbar-form navbar-right" data-bind="submit: show">
+            <div class="form-group">
+              <input name="symbol" type="text" placeholder="证券代码" class="form-control tapeahead">
+            </div>
+            <button type="submit" class="btn btn-success">Go!</button>
+          </form>
+        </div><!--/.navbar-collapse -->
+      </div><!-- /.container -->
+    </div><!-- /.navbar -->
 
-			var appModel = new ApplicationModel(stompClient);
-			ko.applyBindings(appModel);
+    <div class="container">
 
-			appModel.connect();
-		})();
-	</script>
-	<script src="assets/js/respond.min.js"></script>
-</body>
+      <div class="row row-offcanvas row-offcanvas-right">
+        <div class="col-xs-12 col-sm-9">
+          <p class="pull-right visible-xs">
+            <button type="button" class="btn btn-primary btn-xs" data-toggle="offcanvas">Toggle nav</button>
+          </p>
+          <div class="jumbotron">
+            <h1 data-bind="text: symbol">600570.SH</h1>
+            <p></p>
+          </div>
+          <div class="row">
+  
+          </div><!--/row-->
+        </div><!--/span-->
+
+        <div class="col-xs-6 col-sm-3 sidebar-offcanvas" id="sidebar" role="navigation">
+          <div class="well sidebar-nav">
+            
+          </div><!--/.well -->
+        </div><!--/span-->
+      </div><!--/row-->
+
+      <hr>
+
+      <footer>
+        <p>&copy; LuHuiguo 2013</p>
+      </footer>
+
+    </div><!--/.container-->
+
+    <script src="assets/lib/jquery/jquery-2.0.3.min.js"></script>
+    <script src="assets/lib/bootstrap/js/bootstrap.min.js"></script>
+    <script src="assets/lib/knockout/knockout-3.0.0rc.js"></script>
+    <script src="assets/lib/sockjs/sockjs-0.3.4.min.js"></script>
+    <script src="assets/lib/stomp/stomp.js"></script>    
+    <script src="assets/lib/hogan/hogan-3.0.0.min.js"></script>
+    <script src="assets/lib/typeahead/typeahead.min.js"></script>
+    <script src="assets/js/quote.js"></script>
+  </body>
 </html>

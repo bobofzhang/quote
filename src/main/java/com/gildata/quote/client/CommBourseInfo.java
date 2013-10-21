@@ -76,6 +76,10 @@ public class CommBourseInfo implements Encodable {
 	}
 
 	public List<StockType> getNewTypes() {
+		
+		if (newTypes  == null){
+			newTypes = new ArrayList<StockType>();
+		}
 		return newTypes;
 	}
 

@@ -17,7 +17,7 @@
 <meta name="description" content="" />
 <meta name="author" content="" />
 <title><spring:message code="login" /></title>
-<c:url var="bootstrapUrl" value="/assets/css/bootstrap.css" />
+<c:url var="bootstrapUrl" value="/assets/lib/bootstrap/css/bootstrap.css" />
 <link href="${bootstrapUrl}" rel="stylesheet" />
 <c:url var="cssUrl" value="/assets/css/login.css" />
 <link href="${cssUrl}" rel="stylesheet" />

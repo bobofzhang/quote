@@ -46,6 +46,8 @@
 		<javassist.version>3.18.0-GA</javassist.version>
 
 		<jackson.version>2.2.2</jackson.version>
+		<ehcache.version>2.7.4</ehcache.version>
+		<pinyin4j.version>2.5.0</pinyin4j.version>
 
 		<glassfish.version>4.0</glassfish.version>
 		<jetty.version>9.0.6.v20130930</jetty.version>
@@ -98,6 +100,7 @@
 			<artifactId>logback-classic</artifactId>
 			<version>${logback.version}</version>
 		</dependency>
+		
 		<!-- Apache Commons -->
 		<dependency>
 			<groupId>org.apache.commons</groupId>
@@ -105,11 +108,24 @@
 			<version>${commons.lang3.version}</version>
 		</dependency>
 		
+		<!-- pinyin4j -->
+		<dependency>
+			<groupId>com.belerweb</groupId>
+			<artifactId>pinyin4j</artifactId>
+			<version>${pinyin4j.version}</version>
+		</dependency>
+		
 		<!-- Netty -->
 		<dependency>
 			<groupId>io.netty</groupId>
 			<artifactId>netty-all</artifactId>
 			<version>${netty.version}</version>
+		</dependency>
+		
+		<dependency>
+			<groupId>net.sf.ehcache</groupId>
+			<artifactId>ehcache</artifactId>
+			<version>${ehcache.version}</version>
 		</dependency>
 
 		<!-- Spring Framework -->
@@ -290,6 +306,14 @@
 					<failOnMissingWebXml>false</failOnMissingWebXml>
 				</configuration>
 			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-surefire-plugin</artifactId>
+				<version>2.16</version>
+				<configuration>
+					<skipTests>true</skipTests>
+				</configuration>
+			</plugin>			
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-assembly-plugin</artifactId>

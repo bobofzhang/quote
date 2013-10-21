@@ -9,14 +9,10 @@ import org.springframework.web.servlet.support.AbstractAnnotationConfigDispatche
 public class DispatcherServletInitializer extends
 		AbstractAnnotationConfigDispatcherServletInitializer {
 
-	// private static final boolean standardWebSocketPresent = ClassUtils
-	// .isPresent("javax.websocket.Endpoint",
-	// DispatcherServletInitializer.class.getClassLoader());
-
 	@Override
 	protected Class<?>[] getRootConfigClasses() {
 
-		return new Class<?>[] { RootConfig.class, WebSecurityConfig.class };
+		return new Class<?>[] { RootConfig.class, NettyConfig.class, CacheConfig.class};
 	}
 
 	@Override

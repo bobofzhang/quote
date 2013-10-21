@@ -2,6 +2,7 @@ package com.gildata.quote.config;
 
 import org.springframework.context.MessageSource;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.support.ReloadableResourceBundleMessageSource;
 import org.springframework.web.servlet.HandlerInterceptor;
@@ -17,6 +18,7 @@ import org.springframework.web.servlet.view.JstlView;
 
 
 @Configuration
+@ComponentScan(basePackages = { "com.gildata.quote.controller" })
 @EnableWebMvc
 public class WebConfig extends WebMvcConfigurerAdapter {
 
@@ -27,8 +29,8 @@ public class WebConfig extends WebMvcConfigurerAdapter {
 	
 	@Override
 	public void addViewControllers(ViewControllerRegistry registry) {
-		registry.addViewController("/login").setViewName("login");
-		registry.addViewController("/").setViewName("index");
+//		registry.addViewController("/login").setViewName("login");
+//		registry.addViewController("/").setViewName("index");
 	}
 	
 	@Bean

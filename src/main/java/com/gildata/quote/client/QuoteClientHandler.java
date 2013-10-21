@@ -2,8 +2,6 @@ package com.gildata.quote.client;
 
 import static com.gildata.quote.client.MarketType.FUTURES_MARKET;
 import static com.gildata.quote.client.MarketType.HK_MARKET;
-import static com.gildata.quote.client.MarketType.KIND_STOCKA;
-import static com.gildata.quote.client.MarketType.SH_BOURSE;
 import static com.gildata.quote.client.MarketType.STOCK_MARKET;
 import io.netty.channel.ChannelHandler.Sharable;
 import io.netty.channel.ChannelHandlerContext;
@@ -11,10 +9,12 @@ import io.netty.channel.ChannelInboundHandlerAdapter;
 import io.netty.util.internal.logging.InternalLogger;
 import io.netty.util.internal.logging.InternalLoggerFactory;
 
-import java.util.ArrayList;
 import java.util.List;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+
+import com.gildata.quote.model.Exchange;
 
 /**
  * 
@@ -29,6 +29,9 @@ public class QuoteClientHandler extends ChannelInboundHandlerAdapter {
 			.getInstance(QuoteClientHandler.class);
 
 	private ChannelHandlerContext ctx;
+	
+	@Autowired
+	private QuoteManager quoteManager;
 
 	@Override
 	public void channelRead(ChannelHandlerContext ctx, Object msg)
@@ -189,17 +192,22 @@ public class QuoteClientHandler extends ChannelInboundHandlerAdapter {
 	}
 
 	public void ansInitialData(AnsInitialData msg) {
-		// logger.debug("{}", msg);
+		//logger.debug("{}", msg);
 
-		List<CodeInfo> codes = new ArrayList<CodeInfo>();
-		CodeInfo c600570 = new CodeInfo(
-				(short) (STOCK_MARKET | SH_BOURSE | KIND_STOCKA), "600570");
-		CodeInfo c600571 = new CodeInfo(
-				(short) (STOCK_MARKET | SH_BOURSE | KIND_STOCKA), "600571");
-		codes.add(c600570);
-		codes.add(c600571);
-		reqAutoPush(codes);
-		reqTick(c600570);
+		for (OneMarketData marketData : msg.getMarketDatas()) {
+			quoteManager.initAll(marketData);
+		}
+
+		// List<CodeInfo> codes = new ArrayList<CodeInfo>();
+		// CodeInfo c600570 = new CodeInfo(
+		// (short) (STOCK_MARKET | SH_BOURSE | KIND_STOCKA), "600570");
+		// CodeInfo c600571 = new CodeInfo(
+		// (short) (STOCK_MARKET | SH_BOURSE | KIND_STOCKA), "600571");
+		// codes.add(c600570);
+		// codes.add(c600571);
+		// reqAutoPush(codes);
+		// reqRealTime(codes);
+		// reqStockTick(c600570);
 	}
 
 	public void ansServerInfo(AnsServerInfo msg) {

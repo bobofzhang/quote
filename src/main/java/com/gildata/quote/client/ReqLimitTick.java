@@ -36,7 +36,8 @@ public class ReqLimitTick extends Envelope{
 	
 	@Override
 	public void encode(ByteBuf byteBuf) {
-		
+		byteBuf.writeShort(2);
+		byteBuf.writeShort(0);	
 		QuoteUtils.writeEncodable(byteBuf, code, 8);
 		byteBuf.writeShort(count);
 		byteBuf.writeShort(0);

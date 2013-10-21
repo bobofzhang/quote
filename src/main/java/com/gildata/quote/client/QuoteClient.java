@@ -30,13 +30,17 @@ public class QuoteClient {
 	@PostConstruct
 	public void start() throws Exception {
 		channel = bootstrap.connect(address).sync().channel();
-		channel.closeFuture().sync();
 	}
 
 	@PreDestroy
 	public void stop() throws Exception {
 		channel.close();
 	}
+	
+	public void run() throws InterruptedException{
+		channel.closeFuture().sync();
+	}
+    
 	
 	public void login() throws InterruptedException{
 		logger.debug("channel:{}",channel);

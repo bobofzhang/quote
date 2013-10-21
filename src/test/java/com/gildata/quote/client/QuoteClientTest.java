@@ -12,14 +12,17 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
+import com.gildata.quote.config.CacheConfig;
+import com.gildata.quote.config.NettyConfig;
 import com.gildata.quote.config.RootConfig;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(classes = { RootConfig.class })
+@ContextConfiguration(classes = { RootConfig.class, NettyConfig.class,
+		CacheConfig.class })
 public class QuoteClientTest {
-	
+
 	@Autowired
-	private  QuoteClient client;
+	private QuoteClient client;
 
 	@BeforeClass
 	public static void setUpBeforeClass() throws Exception {
@@ -41,9 +44,7 @@ public class QuoteClientTest {
 	public void test() {
 
 		try {
-//			client.start();
-			//client.login();
-//			client.stop();
+			client.run();
 		} catch (Exception e) {
 			fail("Exception");
 			e.printStackTrace();
