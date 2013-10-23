@@ -16,6 +16,7 @@ import static com.gildata.quote.client.MarketType.ZHENGZHOU_BOURSE;
 import static com.gildata.quote.client.MarketType.isMarketBourse;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -34,7 +35,7 @@ public class QuoteManager {
 
     private List<Instrument> instruments = new ArrayList<Instrument>();
     
-    
+    private Map<String,Instrument> instrumentMap = new HashMap<String,Instrument>();
 
 	public QuoteManager() {
 		super();
@@ -48,11 +49,22 @@ public class QuoteManager {
 	}
 
 	public void setInstruments(List<Instrument> instruments) {
-
-		
 		this.instruments = instruments;
 	}
 	
+	
+	
+	public Map<String, Instrument> getInstrumentMap() {
+		if(instrumentMap == null){
+			instrumentMap = new HashMap<String,Instrument>();
+		}
+		return instrumentMap;
+	}
+
+	public void setInstrumentMap(Map<String, Instrument> instrumentMap) {
+		this.instrumentMap = instrumentMap;
+	}
+
 	public void initAll(OneMarketData marketData){
 		initTimes(marketData);
 		initInstruments(marketData);
@@ -183,13 +195,19 @@ public class QuoteManager {
 			for(StockInitInfo stock: marketData.getStockInitInfos()){
 				Instrument instrument = new Instrument(stock);
 				//logger.debug("{}",instrument);
-				ins.add(instrument);	
+				ins.add(instrument);
+				
+				getInstrumentMap().put(instrument.getSymbol(), instrument);
 			}
 			
 		}
 
 		
 		
+	}
+	
+	public Instrument getInstrument(String symbol){
+		return getInstrumentMap().get(symbol);
 	}
     
     

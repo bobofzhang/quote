@@ -1,3 +1,9 @@
+function getURLParameter(name,defaultValue) {
+    return decodeURI(
+        (RegExp(name + '=' + '(.+?)(&|$)').exec(location.search)||[,defaultValue])[1]
+    );
+}
+
 (function() {
   $('[data-toggle=offcanvas]').click(function() {
     $('.row-offcanvas').toggleClass('active');
@@ -11,6 +17,10 @@
     template : '<p><strong>{{name}}</strong> {{symbol}}</p>',
     engine : Hogan
   });
+  
+  
+  
+  
   
   var socket = new SockJS('/quote');
   var stompClient = Stomp.over(socket);
@@ -28,12 +38,14 @@ function ApplicationModel(stompClient) {
 
   self.username = ko.observable();
   self.symbol = ko.observable();
-  
+  var symbol = getURLParameter('symbol','600570.SH');
+
+  self.symbol(symbol);
   //self.instrument = ko.observable(new InstrumentModel());
   //self.trade = ko.observable(new TradeModel(stompClient));
 
   self.connect = function() {
-    stompClient.connect('', '', function(frame) {
+    stompClient.connect('guest', 'guest', function(frame) {
 
       console.log('Connected ' + frame);
       var userName = frame.headers['user-name'];
@@ -48,9 +60,9 @@ function ApplicationModel(stompClient) {
 //        self.instrument().processQuote(JSON.parse(message.body));
 //      });
 //
-//      stompClient.subscribe("/queue/errors" + queueSuffix, function(message) {
-//        self.pushNotification("Error " + message.body);
-//      });
+      stompClient.subscribe("/queue/errors" + queueSuffix, function(message) {
+        self.pushNotification("Error " + message.body);
+      });
     }, function(error) {
       console.log("STOMP protocol error " + error);
     });
@@ -63,10 +75,5 @@ function ApplicationModel(stompClient) {
     }
   };
   
-  self.show = function(formElement) {
-    var symbol = formElement.elements["symbol"].value; 
-    self.symbol(symbol);
-    
-  };
 
 }

@@ -7,8 +7,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.handler.annotation.MessageExceptionHandler;
 import org.springframework.messaging.simp.annotation.SendToUser;
+import org.springframework.messaging.simp.annotation.SubscribeEvent;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
@@ -16,7 +16,6 @@ import com.gildata.quote.client.QuoteManager;
 import com.gildata.quote.model.Instrument;
 
 @Controller
-@RequestMapping
 public class QuoteController {
 	
 	@Autowired
@@ -41,6 +40,10 @@ public class QuoteController {
 
 	}
 	
+	@SubscribeEvent("/instrument")
+	public Instrument getInstrument(String symbol) throws Exception {
+		return quoteManager.getInstrument(symbol);
+	}
 	
 	@MessageExceptionHandler
 	@SendToUser("/queue/errors")
