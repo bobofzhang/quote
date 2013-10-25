@@ -18,10 +18,6 @@ function getURLParameter(name,defaultValue) {
     engine : Hogan
   });
   
-  
-  
-  
-  
   var socket = new SockJS('/quote');
   var stompClient = Stomp.over(socket);
 
@@ -53,13 +49,15 @@ function ApplicationModel(stompClient) {
       
       self.username(userName);
 
-//      stompClient.subscribe("/app/instrument", function(message) {
-//        self.instrument().loadInstrument(JSON.parse(message.body));
-//      });
-//      stompClient.subscribe("/topic/price.stock.*", function(message) {
-//        self.instrument().processQuote(JSON.parse(message.body));
-//      });
-//
+      stompClient.subscribe("/app/instrument/"+symbol, function(message) {
+        console.log("message: " + message);
+        //self.instrument().loadInstrument(JSON.parse(message.body));
+      });
+      stompClient.subscribe("/topic/quote/"+symbol, function(message) {
+        console.log("message: " + message);
+       // self.instrument().processQuote(JSON.parse(message.body));
+      });
+
       stompClient.subscribe("/queue/errors" + queueSuffix, function(message) {
         self.pushNotification("Error " + message.body);
       });

@@ -6,6 +6,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.handler.annotation.MessageExceptionHandler;
+import org.springframework.messaging.handler.annotation.PathVariable;
 import org.springframework.messaging.simp.annotation.SendToUser;
 import org.springframework.messaging.simp.annotation.SubscribeEvent;
 import org.springframework.stereotype.Controller;
@@ -40,8 +41,9 @@ public class QuoteController {
 
 	}
 	
-	@SubscribeEvent("/instrument")
-	public Instrument getInstrument(String symbol) throws Exception {
+	@SubscribeEvent("/instrument/{symbol}")
+	public Instrument getInstrument(@PathVariable String symbol) throws Exception {
+		logger.debug("symbol: {}", symbol);
 		return quoteManager.getInstrument(symbol);
 	}
 	
