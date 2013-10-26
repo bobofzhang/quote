@@ -1,11 +1,13 @@
 <!DOCTYPE html>
 <html lang="zh">
   <head>
+    <meta http-equiv="Cache-Control" content="no-store, no-cache, must-revalidate, max-age=0">
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="">
     <meta name="author" content="">
+    
     <link rel="shortcut icon" href="assets/ico/favicon.ico">
 
     <title>行情测试</title>
@@ -51,27 +53,31 @@
     </div><!-- /.navbar -->
 
     <div class="container">
-
-      <div class="row row-offcanvas row-offcanvas-right">
-        <div class="col-xs-12 col-sm-9">
-          <p class="pull-right visible-xs">
-            <button type="button" class="btn btn-primary btn-xs" data-toggle="offcanvas">Toggle nav</button>
-          </p>
-          <div class="jumbotron">
-            <h1 data-bind="text: symbol">600570.SH</h1>
-            <p></p>
-          </div>
-          <div class="row">
-  
-          </div><!--/row-->
-        </div><!--/span-->
-
-        <div class="col-xs-6 col-sm-3 sidebar-offcanvas" id="sidebar" role="navigation">
-          <div class="well sidebar-nav">
-            
-          </div><!--/.well -->
-        </div><!--/span-->
-      </div><!--/row-->
+      <div data-bind="visible: !quote().hasData()" class="alert alert-warning">请输入证券代码查看行情</div>
+      
+      <div class="panel" data-bind="visible: quote().hasData()">
+        <table data-bind="with: quote" class="table table-borderless">
+          <tbody>
+            <tr>
+              <td data-bind="text: company" class="h4">--------</td>
+              <td>最新</td>
+              <td data-bind="text: price() / 1000, style: {color: change() > 0 ? 'red' : 'green'}" class="number">--</td>
+              <td>最高</td>
+              <td data-bind="text: high() / 1000, style: {color: high() - prevClose() > 0 ? 'red' : 'green'}" class="number">--</td>
+              <td>昨收</td>
+              <td data-bind="text: prevClose() / 1000" class="number">--</td>     
+            </tr>
+            <tr>
+              <td data-bind="text: ticker" class="h4">--------</td>
+              <td>涨跌</td>
+              <td data-bind="text: change() / 1000, style: {color: change() > 0 ? 'red' : 'green'}" class="number">--</td>
+              <td>最低</td>
+              <td data-bind="text: low() / 1000, style: {color: low() - prevClose() > 0 ? 'red' : 'green'}" class="number">--</td>
+              <td>开盘</td>
+              <td data-bind="text: open() / 1000, style: {color: open() - prevClose() > 0 ? 'red' : 'green'}" class="number">--</td>  
+            </tr>
+          </tbody>
+        </table></div>
 
       <hr>
 

@@ -9,12 +9,14 @@ import io.netty.channel.ChannelInboundHandlerAdapter;
 import io.netty.util.internal.logging.InternalLogger;
 import io.netty.util.internal.logging.InternalLoggerFactory;
 
-import java.util.List;
+import java.util.Collection;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationListener;
+import org.springframework.messaging.core.MessageSendingOperations;
+import org.springframework.messaging.simp.BrokerAvailabilityEvent;
 import org.springframework.stereotype.Component;
-
-import com.gildata.quote.model.Exchange;
 
 /**
  * 
@@ -23,16 +25,22 @@ import com.gildata.quote.model.Exchange;
  */
 @Component
 @Sharable
-public class QuoteClientHandler extends ChannelInboundHandlerAdapter {
+public class QuoteClientHandler extends ChannelInboundHandlerAdapter implements
+		ApplicationListener<BrokerAvailabilityEvent> {
 
 	private static final InternalLogger logger = InternalLoggerFactory
 			.getInstance(QuoteClientHandler.class);
 
 	private ChannelHandlerContext ctx;
-	
+
+	private AtomicBoolean brokerAvailable = new AtomicBoolean();
+
 	@Autowired
 	private QuoteManager quoteManager;
 
+	@Autowired
+	private MessageSendingOperations<String> messagingTemplate;
+	
 	@Override
 	public void channelRead(ChannelHandlerContext ctx, Object msg)
 			throws Exception {
@@ -130,7 +138,7 @@ public class QuoteClientHandler extends ChannelInboundHandlerAdapter {
 
 	}
 
-	public void reqRealTime(List<CodeInfo> codes) {
+	public void reqRealTime(Collection<CodeInfo> codes) {
 		AskData ask = new AskData(EnvelopeType.RT_REALTIME, codes);
 		ctx.writeAndFlush(ask);
 
@@ -166,7 +174,7 @@ public class QuoteClientHandler extends ChannelInboundHandlerAdapter {
 
 	}
 
-	public void reqAutoPush(List<CodeInfo> codes) {
+	public void reqAutoPush(Collection<CodeInfo> codes) {
 		AskData ask = new AskData(EnvelopeType.RT_AUTOPUSH, codes);
 		ctx.writeAndFlush(ask);
 
@@ -192,22 +200,10 @@ public class QuoteClientHandler extends ChannelInboundHandlerAdapter {
 	}
 
 	public void ansInitialData(AnsInitialData msg) {
-		//logger.debug("{}", msg);
-
 		for (OneMarketData marketData : msg.getMarketDatas()) {
 			quoteManager.initAll(marketData);
 		}
 
-		// List<CodeInfo> codes = new ArrayList<CodeInfo>();
-		// CodeInfo c600570 = new CodeInfo(
-		// (short) (STOCK_MARKET | SH_BOURSE | KIND_STOCKA), "600570");
-		// CodeInfo c600571 = new CodeInfo(
-		// (short) (STOCK_MARKET | SH_BOURSE | KIND_STOCKA), "600571");
-		// codes.add(c600570);
-		// codes.add(c600571);
-		// reqAutoPush(codes);
-		// reqRealTime(codes);
-		// reqStockTick(c600570);
 	}
 
 	public void ansServerInfo(AnsServerInfo msg) {
@@ -216,10 +212,27 @@ public class QuoteClientHandler extends ChannelInboundHandlerAdapter {
 
 	public void ansRealTime(AnsRealTime msg) {
 		logger.debug("{}", msg);
+		for (RealTimeData data : msg.getDatas()) {
+			sendQuote(data);
+		}
+
 	}
 
 	public void ansAutoPush(AnsAutoPush msg) {
 		logger.debug("{}", msg);
+		for (RealTimeData data : msg.getDatas()) {
+			sendQuote(data);
+		}
+
+	}
+
+	public void sendQuote(RealTimeData data) {
+		
+		if (this.brokerAvailable.get()) {
+			this.messagingTemplate.convertAndSend("/topic/quote/"
+					+ data.getCodeInfo().toSymbol(), data.getData());
+		}
+
 	}
 
 	public void ansTrendData(AnsTrendData msg) {
@@ -236,6 +249,12 @@ public class QuoteClientHandler extends ChannelInboundHandlerAdapter {
 
 	public void ansTick(AnsTick msg) {
 		logger.debug("{}", msg);
+	}
+
+	@Override
+	public void onApplicationEvent(BrokerAvailabilityEvent event) {
+		logger.debug("onApplicationEvent {}", event);
+		this.brokerAvailable.set(event.isBrokerAvailable());
 	}
 
 }

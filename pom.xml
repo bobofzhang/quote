@@ -51,7 +51,7 @@
 
 		<glassfish.version>4.0</glassfish.version>
 		<jetty.version>9.0.6.v20130930</jetty.version>
-		<tomcat.version>8.0.0-RC3</tomcat.version>
+		<tomcat.version>8.0.0-RC5</tomcat.version>
 		<tomcat.maven.plugin.version>2.1</tomcat.maven.plugin.version>
 
 	</properties>

@@ -2,7 +2,7 @@ package com.gildata.quote.client;
 
 import io.netty.buffer.ByteBuf;
 
-import java.util.List;
+import java.util.Collection;
 
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
@@ -21,7 +21,7 @@ public class AskData extends Envelope {
 		this.codes = codes;
 	}
 	
-	public AskData(EnvelopeType type, List<CodeInfo> codes) {
+	public AskData(EnvelopeType type, Collection<CodeInfo> codes) {
 		this(type,codes.toArray(new CodeInfo[codes.size()]));
 	}
 

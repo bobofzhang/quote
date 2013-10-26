@@ -4,6 +4,7 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.messaging.simp.config.EnableWebSocketMessageBroker;
 import org.springframework.messaging.simp.config.MessageBrokerConfigurer;
@@ -16,6 +17,7 @@ import org.springframework.scheduling.config.ScheduledTaskRegistrar;
 @Configuration
 @EnableWebSocketMessageBroker
 @EnableScheduling
+@ComponentScan(basePackages = { "com.gildata.quote.controller" })
 public class WebSocketConfig implements WebSocketMessageBrokerConfigurer, SchedulingConfigurer {
 
 	@Override

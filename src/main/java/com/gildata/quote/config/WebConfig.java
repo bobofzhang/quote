@@ -18,8 +18,8 @@ import org.springframework.web.servlet.view.JstlView;
 
 
 @Configuration
-@ComponentScan(basePackages = { "com.gildata.quote.controller" })
 @EnableWebMvc
+@ComponentScan(basePackages = { "com.gildata.quote.controller" })
 public class WebConfig extends WebMvcConfigurerAdapter {
 
 	@Override

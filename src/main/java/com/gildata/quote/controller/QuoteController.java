@@ -19,20 +19,11 @@ import com.gildata.quote.model.Instrument;
 @Controller
 public class QuoteController {
 	
-	@Autowired
-	private QuoteManager quoteManager;
-
 	private static final Logger logger = LoggerFactory
 			.getLogger(QuoteController.class);
-
-//	@RequestMapping(value = "/quote/{symbol:.+}")
-//	public String quote(@PathVariable String symbol) {
-//		logger.debug("symbol: {}", symbol);
-//		
-//		return "quote";
-//
-//	}
 	
+	@Autowired
+	private QuoteManager quoteManager;
 	
 	@RequestMapping(value = "/instruments")
 	@ResponseBody
@@ -41,10 +32,10 @@ public class QuoteController {
 
 	}
 	
-	@SubscribeEvent("/instrument/{symbol}")
-	public Instrument getInstrument(@PathVariable String symbol) throws Exception {
+	@SubscribeEvent("/ticker/{symbol}")
+	public Instrument subscribe(@PathVariable String symbol) throws Exception {
 		logger.debug("symbol: {}", symbol);
-		return quoteManager.getInstrument(symbol);
+		return quoteManager.subscribe(symbol);
 	}
 	
 	@MessageExceptionHandler

@@ -22,9 +22,7 @@ public class Instrument {
 
 	private String[] tokens;
 
-	private BigDecimal prevClose;
-
-	private BigDecimal lastPrice;
+	private int prevClose;
 
 	public Instrument(StockInitInfo info) {
 		super();
@@ -32,8 +30,7 @@ public class Instrument {
 		this.code = info.getStockCode().getCode();
 		this.market = info.getStockCode().getMarket();
 		this.name = info.getStockName();
-		this.prevClose = BigDecimal
-				.valueOf((double) info.getPrevClose() / 1000);
+		this.prevClose = info.getPrevClose();
 
 		this.abbr = QuoteUtils.toPingYinFirstChar(info.getStockName());
 
@@ -89,20 +86,14 @@ public class Instrument {
 		this.tokens = tokens;
 	}
 
-	public BigDecimal getPrevClose() {
+
+
+	public int getPrevClose() {
 		return prevClose;
 	}
 
-	public void setPrevClose(BigDecimal prevClose) {
+	public void setPrevClose(int prevClose) {
 		this.prevClose = prevClose;
-	}
-
-	public BigDecimal getLastPrice() {
-		return lastPrice;
-	}
-
-	public void setLastPrice(BigDecimal lastPrice) {
-		this.lastPrice = lastPrice;
 	}
 
 	@Override

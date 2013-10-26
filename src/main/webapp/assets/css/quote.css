@@ -1,7 +1,3 @@
-/*
- * Style twaks
- * --------------------------------------------------
- */
 body {
   padding-top: 70px;
 }
@@ -10,39 +6,8 @@ footer {
   padding-right: 15px;
 }
 
-/*
- * Off Canvas
- * --------------------------------------------------
- */
-@media screen and (max-width: 768px) {
-  .row-offcanvas {
-    position: relative;
-    -webkit-transition: all 0.25s ease-out;
-    -moz-transition: all 0.25s ease-out;
-    transition: all 0.25s ease-out;
-  }
+.table-borderless td,
+.table-borderless th {
+    border: 0 !important;
+}
 
-  .row-offcanvas-right
-  .sidebar-offcanvas {
-    right: -50%; /* 6 columns */
-  }
-
-  .row-offcanvas-left
-  .sidebar-offcanvas {
-    left: -50%; /* 6 columns */
-  }
-
-  .row-offcanvas-right.active {
-    right: 50%; /* 6 columns */
-  }
-
-  .row-offcanvas-left.active {
-    left: 50%; /* 6 columns */
-  }
-
-  .sidebar-offcanvas {
-    position: absolute;
-    top: 0;
-    width: 50%; /* 6 columns */
-  }
-}}

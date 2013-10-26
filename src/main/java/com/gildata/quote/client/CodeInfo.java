@@ -8,6 +8,7 @@ import static com.gildata.quote.client.QuoteConstants.CODE_LEN;
 import static com.gildata.quote.client.QuoteConstants.GB18030;
 import io.netty.buffer.ByteBuf;
 
+import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 
@@ -52,13 +53,7 @@ public class CodeInfo implements Encodable {
 		QuoteUtils.writeString(byteBuf, code, CODE_LEN, GB18030);
 
 	}
-
-	@Override
-	public String toString() {
-		return ToStringBuilder.reflectionToString(this,
-				ToStringStyle.SHORT_PREFIX_STYLE);
-	}
-
+	
 	public String toSymbol() {
 
 		if ((market & SH_BOURSE) != 0) {
@@ -74,5 +69,20 @@ public class CodeInfo implements Encodable {
 		}
 
 	}
+
+	@Override
+	public String toString() {
+		return ToStringBuilder.reflectionToString(this,
+				ToStringStyle.SHORT_PREFIX_STYLE);
+	}
+
+	@Override
+	public int hashCode() {
+		return HashCodeBuilder.reflectionHashCode(this);
+	}
+	
+	
+
+
 
 }
