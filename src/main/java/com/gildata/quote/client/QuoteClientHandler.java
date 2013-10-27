@@ -230,7 +230,7 @@ public class QuoteClientHandler extends ChannelInboundHandlerAdapter implements
 		
 		if (this.brokerAvailable.get()) {
 			this.messagingTemplate.convertAndSend("/topic/quote/"
-					+ data.getCodeInfo().toSymbol(), data.getData());
+					+ data.getCodeInfo().toSymbol(), data);
 		}
 
 	}

@@ -11,8 +11,8 @@ public class StockOtherData {
 	private short second;
 
 	private int current; // 现在总手
-	private int sellVol; // 外盘
-	private int buyVol; // 内盘
+	private int buyVol; // 外盘
+	private int sellVol; // 内盘
 	private int value1; // 今开仓,深交所股票单笔成交数,港股交易宗数 对于外汇时，昨收盘数据
 	private int value2; // 对于外汇时，报价状态 今平仓
 
@@ -21,8 +21,8 @@ public class StockOtherData {
 		this.time = byteBuf.readShort();
 		this.second = byteBuf.readShort();
 		this.current = byteBuf.readInt();
-		this.sellVol = byteBuf.readInt();
 		this.buyVol = byteBuf.readInt();
+		this.sellVol = byteBuf.readInt();
 		this.value1 = byteBuf.readInt();
 		this.value2 = byteBuf.readInt();
 	}

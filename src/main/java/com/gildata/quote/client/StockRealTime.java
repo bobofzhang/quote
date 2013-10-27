@@ -12,7 +12,7 @@ public class StockRealTime implements ShareRealTimeData {
 	private int low; // 最低价
 	private int price; // 最新价
 	private int vol; // 成交量(单位:股)
-	private float avg; // 成交金额
+	private int amount; // 成交金额
 
 	private int bid1; // 买一价
 	private int bidSize1; // 买一量
@@ -46,7 +46,7 @@ public class StockRealTime implements ShareRealTimeData {
 		this.low = byteBuf.readInt();
 		this.price = byteBuf.readInt();
 		this.vol = byteBuf.readInt();
-		this.avg = byteBuf.readFloat();
+		this.amount = byteBuf.readInt();
 
 		this.bid1 = byteBuf.readInt();
 		this.bidSize1 = byteBuf.readInt();
@@ -114,12 +114,12 @@ public class StockRealTime implements ShareRealTimeData {
 		this.vol = vol;
 	}
 
-	public float getAvg() {
-		return avg;
+	public int getAmount() {
+		return amount;
 	}
 
-	public void setAvg(float avg) {
-		this.avg = avg;
+	public void setAmount(int amount) {
+		this.amount = amount;
 	}
 
 	public int getBid1() {

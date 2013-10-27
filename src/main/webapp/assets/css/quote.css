@@ -11,3 +11,18 @@ footer {
     border: 0 !important;
 }
 
+.table th.number, .table td.number {
+  text-align: right;
+}
+
+.upColor {
+	color: red;
+}
+
+.downColor {
+	color: green;	
+}
+
+.normalColor {
+		
+}
