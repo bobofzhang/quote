@@ -81,45 +81,52 @@ public class QuoteManager {
 		int date = marketData.getBourseInfo().getDate();
 		List<Integer> times = null;
 
-		if (isMarketBourse(marketType, STOCK_MARKET, SH_BOURSE)) {
-			Exchange.SH_STOCK_EXCHANGE.setDate(date);
-			times = Exchange.SH_STOCK_EXCHANGE.getTimes();
+		Exchange exchange = Exchange.getExchange(marketType);
+		
+		if (exchange != null){
+			exchange.setDate(date);
+			times = exchange.getTimes();
+		}
 
-		} else if (isMarketBourse(marketType, STOCK_MARKET, SZ_BOURSE)) {
-			Exchange.SZ_STOCK_EXCHANGE.setDate(date);
-			times = Exchange.SZ_STOCK_EXCHANGE.getTimes();
-
-		} else if (isMarketBourse(marketType, FUTURES_MARKET, DALIAN_BOURSE)) {
+//		if (isMarketBourse(marketType, STOCK_MARKET, SH_BOURSE)) {
+//			Exchange.SH_STOCK_EXCHANGE.setDate(date);
+//			times = Exchange.SH_STOCK_EXCHANGE.getTimes();
+//
+//		} else if (isMarketBourse(marketType, STOCK_MARKET, SZ_BOURSE)) {
+//			Exchange.SZ_STOCK_EXCHANGE.setDate(date);
+//			times = Exchange.SZ_STOCK_EXCHANGE.getTimes();
+//
+//		} else if (isMarketBourse(marketType, FUTURES_MARKET, DALIAN_BOURSE)) {
 //			Exchange.DL_FUTURES_EXCHANGE.setDate(date);
 //			times = Exchange.DL_FUTURES_EXCHANGE.getTimes();
-
-		} else if (isMarketBourse(marketType, FUTURES_MARKET, SHANGHAI_BOURSE)) {
+//
+//		} else if (isMarketBourse(marketType, FUTURES_MARKET, SHANGHAI_BOURSE)) {
 //			Exchange.SH_FUTURES_EXCHANGE.setDate(date);
 //			times = Exchange.SH_FUTURES_EXCHANGE.getTimes();
-
-		} else if (isMarketBourse(marketType, FUTURES_MARKET, ZHENGZHOU_BOURSE)) {
+//
+//		} else if (isMarketBourse(marketType, FUTURES_MARKET, ZHENGZHOU_BOURSE)) {
 //			Exchange.ZZ_FUTURES_EXCHANGE.setDate(date);
 //			times = Exchange.ZZ_FUTURES_EXCHANGE.getTimes();
-
-		} else if (isMarketBourse(marketType, FUTURES_MARKET, HUANGJIN_BOURSE)) {
+//
+//		} else if (isMarketBourse(marketType, FUTURES_MARKET, HUANGJIN_BOURSE)) {
 //			Exchange.GD_FUTURES_EXCHANGE.setDate(date);
 //			times = Exchange.GD_FUTURES_EXCHANGE.getTimes();
-
-		} else if (isMarketBourse(marketType, FUTURES_MARKET, GUZHI_BOURSE)) {
+//
+//		} else if (isMarketBourse(marketType, FUTURES_MARKET, GUZHI_BOURSE)) {
 //			Exchange.IF_FUTURES_EXCHANGE.setDate(date);
 //			times = Exchange.IF_FUTURES_EXCHANGE.getTimes();
-
-		} else if (isMarketBourse(marketType, HK_MARKET, HK_BOURSE)) {
+//
+//		} else if (isMarketBourse(marketType, HK_MARKET, HK_BOURSE)) {
 //			Exchange.HK_STOCK_EXCHANGE.setDate(date);
 //			times = Exchange.HK_STOCK_EXCHANGE.getTimes();
-
-		} else if (isMarketBourse(marketType, HK_MARKET, GE_BOURSE)) {
-
-		} else if (isMarketBourse(marketType, HK_MARKET, INDEX_BOURSE)) {
-
-		} else {
-
-		}
+//
+//		} else if (isMarketBourse(marketType, HK_MARKET, GE_BOURSE)) {
+//
+//		} else if (isMarketBourse(marketType, HK_MARKET, INDEX_BOURSE)) {
+//
+//		} else {
+//
+//		}
 
 		if (times != null) {
 			times.clear();
@@ -211,12 +218,24 @@ public class QuoteManager {
 		if (instrument != null) {
 			CodeInfo code = new CodeInfo(instrument.getMarket(),
 					instrument.getCode());
+			quoteClientHandler.reqTrend(code);
+			quoteClientHandler.reqStockTick(code);
+			
 			codes.add(code);
 			quoteClientHandler.reqRealTime(codes);
 			quoteClientHandler.reqAutoPush(codes);
 		}
 		return instrument;
 
+	}
+	
+	public void kline(String symbol, PeriodType period, int day){
+		Instrument instrument = getInstrument(symbol);
+		if (instrument != null) {
+			CodeInfo code = new CodeInfo(instrument.getMarket(),
+					instrument.getCode());
+			quoteClientHandler.reqDayData(code, period, day);
+		}
 	}
 
 }

@@ -12,7 +12,8 @@ public class DispatcherServletInitializer extends
 	@Override
 	protected Class<?>[] getRootConfigClasses() {
 
-		return new Class<?>[] { RootConfig.class, NettyConfig.class, CacheConfig.class, WebSocketConfig.class};
+		return new Class<?>[] { RootConfig.class, WebSecurityConfig.class,
+				NettyConfig.class,/* CacheConfig.class, */WebSocketConfig.class };
 	}
 
 	@Override

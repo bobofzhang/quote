@@ -1,6 +1,10 @@
 package com.gildata.quote.client;
 
 import static com.gildata.quote.client.QuoteConstants.GB18030;
+
+import org.apache.commons.lang3.builder.ToStringBuilder;
+import org.apache.commons.lang3.builder.ToStringStyle;
+
 import io.netty.buffer.ByteBuf;
 
 public class ReqLogin extends Envelope {
@@ -52,6 +56,12 @@ public class ReqLogin extends Envelope {
 		QuoteUtils.writeString(byteBuf, username, 64, GB18030);
 		QuoteUtils.writeString(byteBuf, password, 64, GB18030);
 
+	}
+	
+	@Override
+	public String toString() {
+		return ToStringBuilder.reflectionToString(this,
+				ToStringStyle.SHORT_PREFIX_STYLE);
 	}
 
 }

@@ -40,7 +40,7 @@ public class QuoteClientHandler extends ChannelInboundHandlerAdapter implements
 
 	@Autowired
 	private MessageSendingOperations<String> messagingTemplate;
-	
+
 	@Override
 	public void channelRead(ChannelHandlerContext ctx, Object msg)
 			throws Exception {
@@ -65,6 +65,10 @@ public class QuoteClientHandler extends ChannelInboundHandlerAdapter implements
 			ansStockTick((AnsStockTick) msg);
 		} else if (msg instanceof AnsTick) {
 			ansTick((AnsTick) msg);
+		} else if (msg instanceof AnsDayData) {
+			ansDayData((AnsDayData) msg);
+		} else if (msg instanceof AnsDayDataEx) {
+			ansDayDataEx((AnsDayDataEx) msg);
 		}
 
 	}
@@ -167,6 +171,16 @@ public class QuoteClientHandler extends ChannelInboundHandlerAdapter implements
 
 	}
 
+	public void reqDayData(CodeInfo code, PeriodType period, int day) {
+		ReqDayData ask = new ReqDayData();
+		ask.setCodeInfo(code);
+		ask.setPeriod(period);
+		ask.setDay((short) day);
+		ask.getPrivateKey().setCodeInfo(code);
+		ctx.writeAndFlush(ask);
+
+	}
+
 	public void reqLimitTick(CodeInfo code, int count) {
 		ReqLimitTick req = new ReqLimitTick(code, (short) count);
 		req.getPrivateKey().setCodeInfo(code);
@@ -227,7 +241,7 @@ public class QuoteClientHandler extends ChannelInboundHandlerAdapter implements
 	}
 
 	public void sendQuote(RealTimeData data) {
-		
+
 		if (this.brokerAvailable.get()) {
 			this.messagingTemplate.convertAndSend("/topic/quote/"
 					+ data.getCodeInfo().toSymbol(), data);
@@ -237,6 +251,10 @@ public class QuoteClientHandler extends ChannelInboundHandlerAdapter implements
 
 	public void ansTrendData(AnsTrendData msg) {
 		logger.debug("{}", msg);
+		if (this.brokerAvailable.get()) {
+			this.messagingTemplate.convertAndSend("/queue/trend/"
+					+ msg.getPrivateKey().getCodeInfo().toSymbol(), msg);
+		}
 	}
 
 	public void ansKeepActive(AnsKeepActive msg) {
@@ -249,6 +267,18 @@ public class QuoteClientHandler extends ChannelInboundHandlerAdapter implements
 
 	public void ansTick(AnsTick msg) {
 		logger.debug("{}", msg);
+	}
+
+	public void ansDayData(AnsDayData msg) {
+		logger.debug("{}", msg);
+	}
+
+	public void ansDayDataEx(AnsDayDataEx msg) {
+		logger.debug("{}", msg);
+		if (this.brokerAvailable.get()) {
+			this.messagingTemplate.convertAndSend("/queue/kline/"
+					+ msg.getPrivateKey().getCodeInfo().toSymbol(), msg.getDatas());
+		}
 	}
 
 	@Override

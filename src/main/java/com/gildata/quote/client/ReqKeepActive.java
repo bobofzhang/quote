@@ -1,6 +1,10 @@
 package com.gildata.quote.client;
 
 import static com.gildata.quote.client.QuoteConstants.FLAG;
+
+import org.apache.commons.lang3.builder.ToStringBuilder;
+import org.apache.commons.lang3.builder.ToStringStyle;
+
 import io.netty.buffer.ByteBuf;
 
 public class ReqKeepActive extends Envelope{
@@ -20,8 +24,8 @@ public class ReqKeepActive extends Envelope{
 	
 	@Override
 	public String toString() {
-		return "ReqKeepActive [type=" + type + ", index=" + index
-				+ ", operator=" + operator + "]";
+		return ToStringBuilder.reflectionToString(this,
+				ToStringStyle.SHORT_PREFIX_STYLE);
 	}
 	
 	

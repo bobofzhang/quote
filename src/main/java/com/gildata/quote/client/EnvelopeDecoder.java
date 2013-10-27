@@ -78,6 +78,10 @@ public class EnvelopeDecoder extends LengthFieldBasedFrameDecoder {
 			return new AnsTick(frame);
 		case RT_KEEPACTIVE:
 			return new AnsKeepActive(frame);
+		case RT_TECHDATA:
+			return new AnsDayData(frame);
+		case RT_TECHDATA_EX:
+			return new AnsDayDataEx(frame);			
 		default:
 			return null;
 

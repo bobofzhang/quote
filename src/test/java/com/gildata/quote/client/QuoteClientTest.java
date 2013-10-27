@@ -15,10 +15,11 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import com.gildata.quote.config.CacheConfig;
 import com.gildata.quote.config.NettyConfig;
 import com.gildata.quote.config.RootConfig;
+import com.gildata.quote.config.WebSocketConfig;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(classes = { RootConfig.class, NettyConfig.class,
-		CacheConfig.class })
+		CacheConfig.class, WebSocketConfig.class })
 public class QuoteClientTest {
 
 	@Autowired

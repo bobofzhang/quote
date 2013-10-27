@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="zh">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="" />
+    <meta name="author" content="" />
+    <link rel="shortcut icon" href="assets/ico/favicon.ico" />
+    <title>登录</title>
+    <link href="assets/lib/bootstrap/css/bootstrap.css" rel="stylesheet" />
+    <link href="assets/css/login.css" rel="stylesheet" />
+
+    <!-- Custom styles -->
+    <link href="assets/css/quote.css" rel="stylesheet" />
+
+    <!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!--[if lt IE 9]>
+      <script src="assets/lib/html5shiv/html5shiv.js"></script>
+      <script src="assets/lib/respond/respond.min.js"></script>
+    <![endif]-->
+  </head>
+
+  <body>
+
+	<div class="container">
+		<div data-bind="visible: showErrorMessage" class="alert alert-danger">
+			登录失败，请检查输入项</div>
+		<form class="form-signin" method="post" action="login.html">
+			<h3 class="text-muted form-signin-heading">请登录</h3>
+			<input type="text" class="form-control" placeholder="用户名"
+				name="username" autofocus /> 
+			<input type="password"
+				class="form-control" placeholder="密码" name="password" /> 
+			<label
+				class="checkbox"> 
+				<input type="checkbox" name="remember-me" />
+				记住登录
+			</label>
+			<button class="btn btn-large btn-primary btn-block" type="submit">登录</button>
+		</form>
+	</div>
+	<!-- /container -->
+
+    <script src="assets/lib/knockout/knockout-3.0.0rc.js"></script>
+
+	<script type="text/javascript">
+		ko.applyBindings({
+			showErrorMessage : ko.computed(function() {
+				var query = window.location.search;
+				return query ? (query.indexOf('error') != -1) : false;
+			}),
+		});
+	</script>
+
+
+</body>
+</html>

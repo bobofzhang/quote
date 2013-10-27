@@ -1,5 +1,8 @@
 package com.gildata.quote.client;
 
+import org.apache.commons.lang3.builder.ToStringBuilder;
+import org.apache.commons.lang3.builder.ToStringStyle;
+
 import io.netty.buffer.ByteBuf;
 
 public class ReqLimitTick extends Envelope{
@@ -43,6 +46,12 @@ public class ReqLimitTick extends Envelope{
 		byteBuf.writeShort(0);
 
 
+	}
+	
+	@Override
+	public String toString() {
+		return ToStringBuilder.reflectionToString(this,
+				ToStringStyle.SHORT_PREFIX_STYLE);
 	}
 
 }

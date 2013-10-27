@@ -10,9 +10,18 @@ function colorOfValue(value, base) {
   } else {
     return "";
   }
-};
+}
 
 (function() {
+
+  var socket = new SockJS('/quote');
+  var stompClient = Stomp.over(socket);
+  var symbol = getURLParameter('symbol', '600570.SH');
+
+  var appModel = new ApplicationModel(stompClient, symbol);
+  ko.applyBindings(appModel);
+
+  appModel.connect();
 
   $('input.tapeahead').typeahead({
     name : 'instruments',
@@ -23,25 +32,26 @@ function colorOfValue(value, base) {
     engine : Hogan
   });
 
-  var socket = new SockJS('/quote');
-  var stompClient = Stomp.over(socket);
-  var symbol = getURLParameter('symbol', null);
+  $('#chartTab a[href="#trend"]').on('shown.bs.tab', function(e) {
 
-  var appModel = new ApplicationModel(stompClient);
-  ko.applyBindings(appModel);
+  });
 
-  appModel.connect(symbol);
+  $('#chartTab a[href="#kline-day"]').on('shown.bs.tab', function(e) {
+    appModel.kline().sendKline();
+  });
 
 })();
 
-function ApplicationModel(stompClient) {
+function ApplicationModel(stompClient, symbol) {
   var self = this;
 
   self.username = ko.observable();
-  self.quote = ko.observable(new QuoteModel());
+  self.quote = ko.observable(new QuoteModel(stompClient, symbol));
+  self.trend = ko.observable(new TrendModel(stompClient, symbol));
+  self.kline = ko.observable(new KlineModel(stompClient, symbol));
   self.notifications = ko.observableArray();
 
-  self.connect = function(symbol) {
+  self.connect = function() {
     stompClient.connect('guest', 'guest', function(frame) {
 
       console.log('Connected ' + frame);
@@ -51,15 +61,20 @@ function ApplicationModel(stompClient) {
       self.username(userName);
 
       stompClient.subscribe("/app/ticker/" + symbol, function(message) {
-        // console.log("ticker message: " + message);
         self.quote().loadTicker(JSON.parse(message.body));
       });
       stompClient.subscribe("/topic/quote/" + symbol, function(message) {
-        // console.log("quote message: " + message);
         self.quote().processQuote(JSON.parse(message.body));
       });
+      stompClient.subscribe("/queue/trend/" + symbol, function(message) {
+        self.trend().processTrend(JSON.parse(message.body));
+      });
 
-      stompClient.subscribe("/queue/errors" + queueSuffix, function(message) {
+      stompClient.subscribe("/queue/kline/" + symbol, function(message) {
+        self.kline().processKline(JSON.parse(message.body));
+      });
+
+      stompClient.subscribe("/queue/errors/" + queueSuffix, function(message) {
         self.pushNotification("Error " + message.body);
       });
     }, function(error) {
@@ -78,7 +93,7 @@ function ApplicationModel(stompClient) {
 
 }
 
-function QuoteModel() {
+function QuoteModel(stompClient, symbol) {
   var self = this;
 
   self.company = ko.observable();
@@ -141,7 +156,7 @@ function QuoteModel() {
         + "%";
   });
 
-  self.formattedVolumn = ko.computed(function() {
+  self.formattedVolume = ko.computed(function() {
     return (self.vol() / 1000000).toFixed(2) + "万手";
   });
 
@@ -250,7 +265,125 @@ function QuoteModel() {
     self.buyVol(other.buyVol);
     self.sellVol(other.sellVol);
 
+  };
+}
 
+function TrendModel(stompClient, symbol) {
+  var self = this;
+
+  self.processTrend = function(data) {
+    // var price = [], volume = [], dataLength = data.length;
+    //
+    // for (var i = 0; i < dataLength; i++) {
+    // price.push([ data[i][0], // the date
+    // data[i][1], // the price
+    // ]);
+    //
+    // volume.push([ data[i][0], // the date
+    // data[i][2] // the volume
+    // ]);
+    // }
+    //
+    // // create the chart
+    // self.chart = $('#content').highcharts('StockChart', {
+    // rangeSelector : {
+    // enabled : false,
+    // selected : 1
+    // },
+    //
+    // yAxis : [ {
+    // height : 250,
+    // lineWidth : 1
+    // }, {
+    // top : 300,
+    // height : 100,
+    // offset : 0,
+    // lineWidth : 1
+    // } ],
+    //
+    // series : [ {
+    // type : 'spline',
+    // name : symbol,
+    // data : price,
+    // color : 'white',
+    // tooltip : {
+    // xDateFormat : '%b%e日 %H:%M',
+    // }
+    // }, {
+    // type : 'column',
+    // name : '成交量',
+    // data : volume,
+    // yAxis : 1,
+    // color : 'gray'
+    // } ]
+    // });
+
+  };
+
+}
+
+function KlineModel(stompClient, symbol) {
+  var self = this;
+
+  self.sendKline = function() {
+    stompClient.send("/app/kline/" + symbol, {}, '');
+
+  };
+
+  self.processKline = function(data) {
+    var ohlc = [], volume = [];
+
+    for (var i = 0; i < data.length; i++) {
+      var ds = "" + data[i].date;
+      console.log(ds);
+      ds = ds.substring(0, 4) + "-" + ds.substring(4, 6) + "-" + ds.substring(6, 8);
+
+      console.log(ds);
+
+      var date = new Date(ds);
+      console.log(date);
+
+      ohlc.push([ date.getTime(), // the date
+      data[i].open / 1000, // open
+      data[i].high / 1000, // high
+      data[i].low / 1000, // low
+      data[i].close / 1000 // close
+      ]);
+
+      volume.push([ date.getTime(), // the date
+      data[i].volume // the volume
+      ]);
+    }
+
+    // create the chart
+    self.chart = $('#chart').highcharts('StockChart', {
+      rangeSelector : {
+        enabled : false,
+        inputEnabled : false,
+        selected : 1
+      },
+
+      yAxis : [ {
+        height : 200,
+        lineWidth : 2
+      }, {
+        top : 200,
+        height : 100,
+        offset : 0,
+        lineWidth : 2
+      } ],
+
+      series : [ {
+        type : 'candlestick',
+        name : symbol,
+        data : ohlc
+      }, {
+        type : 'column',
+        name : '成交量',
+        data : volume,
+        yAxis : 1
+      } ]
+    });
   };
 
 }
