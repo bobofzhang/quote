@@ -60,6 +60,13 @@ Highcharts.theme = {
         xDateFormat : '%Y/%m/%d %a',
         pointFormat : '<span style="color:{series.color};font-weight:bold">{series.name}</span><br/>'
             + '开盘: {point.open}<br/>' + '最高: {point.high}<br/>' + '最低: {point.low}<br/>' + '收盘: {point.close}<br/>'
+      },
+      states : {
+          enabled : false,
+          hover : {
+              lineColor : '#00c',
+              lineWidth : 1
+          }
       }
 
     }
