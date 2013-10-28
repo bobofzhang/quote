@@ -17,7 +17,7 @@ function formatAmount(amount) {
     return (amount / 100000000).toFixed(4) + '亿元';
 
   } else if (amount > 10000) {
-    return (amount / 10000).toFixed(2) +'万元';
+    return (amount / 10000).toFixed(2) + '万元';
   } else {
     return amount + '元';
   }
@@ -45,7 +45,7 @@ function formatVolume(volume) {
   $('[data-toggle=offcanvas]').click(function() {
     $('.row-offcanvas').toggleClass('active');
   });
-  
+
   $('input.tapeahead').typeahead({
     name : 'tickers',
     valueKey : 'symbol',
@@ -66,7 +66,7 @@ function formatVolume(volume) {
 })();
 
 function ApplicationModel(stompClient, symbol) {
-  
+
   var self = this;
 
   self.username = ko.observable();
@@ -74,7 +74,7 @@ function ApplicationModel(stompClient, symbol) {
   self.trend = ko.observable(new TrendModel(stompClient, symbol));
   self.kline = ko.observable(new KlineModel(stompClient, symbol));
   self.tick = ko.observable(new TickModel());
-  
+
   self.notifications = ko.observableArray();
 
   self.connect = function() {
@@ -84,36 +84,42 @@ function ApplicationModel(stompClient, symbol) {
       self.username(userName);
 
       stompClient.subscribe("/app/info/" + symbol, function(message) {
-        self.quote().loadTicker(JSON.parse(message.body));
-      });
-      
-      stompClient.subscribe("/topic/quote/" + symbol, function(message) {
         var data = JSON.parse(message.body);
-        self.quote().processQuote(data);
-        self.trend().processQuote(data);
-        self.kline().processQuote(data);
-        self.tick().processQuote(data);
+        self.quote().loadTicker(data);
+        self.trend().initTimes(data);
+        self.tick().initTimes(data);
+        self.init();
       });
-      
-      stompClient.subscribe("/queue/trend/" + symbol, function(message) {
-        var data = JSON.parse(message.body);
-        self.quote().processQuote(data);
-        self.trend().processTrend(data);
-      });
-
-      stompClient.subscribe("/queue/kline/" + symbol, function(message) {
-        self.kline().processKline(JSON.parse(message.body));
-      });
-      
-      stompClient.subscribe("/queue/tick/" + symbol, function(message) {
-        self.tick().loadTicks(JSON.parse(message.body));
-      });
-
       stompClient.subscribe("/queue/errors/" + queueSuffix, function(message) {
         self.pushNotification("Error " + message.body);
       });
     }, function(error) {
       console.log("STOMP protocol error " + error);
+    });
+  };
+
+  self.init = function() {
+
+    stompClient.subscribe("/topic/quote/" + symbol, function(message) {
+      var data = JSON.parse(message.body);
+      self.quote().processQuote(data);
+      self.trend().processQuote(data);
+      self.kline().processQuote(data);
+      self.tick().processQuote(data);
+    });
+
+    stompClient.subscribe("/queue/trend/" + symbol, function(message) {
+      var data = JSON.parse(message.body);
+      self.quote().processQuote(data);
+      self.trend().processTrend(data);
+    });
+
+    stompClient.subscribe("/queue/kline/" + symbol, function(message) {
+      self.kline().processKline(JSON.parse(message.body));
+    });
+
+    stompClient.subscribe("/queue/tick/" + symbol, function(message) {
+      self.tick().loadTicks(JSON.parse(message.body));
     });
   };
 
@@ -129,48 +135,80 @@ function ApplicationModel(stompClient, symbol) {
 }
 
 function TickModel() {
-  
+
   var self = this;
 
   self.ticks = ko.observableArray();
-  
+
+  self.initTimes = function(data) {
+    self.date = data.exchange.date;
+    self.times = data.exchange.times;
+    self.prevClose = data.ticker.prevClose;
+  };
+
   self.loadTicks = function(data) {
-    for ( var i = 0; i < data.ticks.length; i++) {
-      var t = new Tick(data.ticks[i]);
-      self.ticks.push(t);
-    }    
-    
+    for (var i = 0; i < data.ticks.length; i++) {
+      var t = data.ticks[i];
+
+      var m = moment(self.date, 'YYYYMMDD').add('m', self.times[t.time - 1]).add('s', t.second).format('HH:mm:ss');
+
+      var v = t.vol;
+      if (i > 1) {
+        v = v - data.ticks[i - 1].vol;
+      }
+
+      self.addTick(m, t.price, v);
+    }
 
   };
-  
+
+  self.addTick = function(time, price, vol) {
+    var tick = new Tick(time, price, vol, self.prevClose);
+    self.ticks.unshift(tick);
+    if (self.ticks().length > 5) {
+      self.ticks.pop();
+    }
+
+  };
+
   self.processQuote = function(quote) {
     
+    var data = quote.data;
+    var other = quote.otherData;
+    var m = moment(self.date, 'YYYYMMDD').add('m', self.times[other.time - 1]).add('s', other.second).format('HH:mm:ss');
 
-
+    self.addTick(m, data.price, other.current);
   };
-  
+
 }
 
-function Tick(data) {
+function Tick(time, price, vol, prevClose) {
   var self = this;
-
-  self.time = data.time;
-  self.price = data.price;
-  self.vol = data.vol;
-
-
+  self.prevClose = prevClose;
+  self.time = time;
+  self.price = price;
+  self.vol = vol;
+  
+  self.priceStyle = ko.computed(function() {
+    return colorOfValue(self.price, self.prevClose);
+  });
 };
 
 function TrendModel(stompClient, symbol) {
   var self = this;
-  
+
   self.price = [];
   self.volume = [];
-  
+
+  self.initTimes = function(data) {
+    self.date = data.exchange.date;
+    self.times = data.exchange.times;
+  };
+
   self.prepareTrend = function() {
     stompClient.send("/app/trend/" + symbol, {}, '');
   };
-  
+
   self.showTrend = function() {
     self.chart = $('#chart').highcharts('StockChart', {
       rangeSelector : {
@@ -204,21 +242,21 @@ function TrendModel(stompClient, symbol) {
       } ]
     });
   };
-  
+
   self.processQuote = function(data) {
-  
+
   };
 
   self.processTrend = function(data) {
 
-    var times = data.times;
+    var times = self.times;
     var items = data.items;
     self.price = [];
     self.volume = [];
 
     for (var i = 0; i < times.length; i++) {
 
-      var m = +moment(data.date, 'YYYYMMDD').add('minutes', times[i]);
+      var m = +moment(self.date, 'YYYYMMDD').add('minutes', times[i]);
 
       if (items.length > i) {
         self.price.push([ m, items[i].price / 1000 ]);
@@ -233,19 +271,17 @@ function TrendModel(stompClient, symbol) {
         self.volume.push([ m, null ]);
       }
     }
-    
+
     self.showTrend();
   };
 }
 
-
-
 function KlineModel(stompClient, symbol) {
   var self = this;
-  
+
   self.ohlc = [];
   self.volume = [];
-  
+
   self.prepareKline = function() {
     stompClient.send("/app/kline/" + symbol, {}, '');
   };
@@ -278,18 +314,18 @@ function KlineModel(stompClient, symbol) {
         data : self.volume,
         yAxis : 1
       } ]
-    });   
+    });
 
   };
-  
+
   self.processQuote = function(data) {
-    
+
   };
 
   self.processKline = function(data) {
     self.ohlc = [];
     self.volume = [];
-    
+
     for (var i = 0; i < data.length; i++) {
       var date = +moment(data[i].date, 'YYYYMMDD');
 
@@ -437,10 +473,13 @@ function QuoteModel(stompClient, symbol) {
     return colorOfValue(self.committee(), 0);
   });
 
-  self.loadTicker = function(ticker) {
-    self.ticker(ticker.symbol);
-    self.company(ticker.name);
-    self.prevClose(ticker.prevClose);
+  self.loadTicker = function(data) {
+
+    // self.times = data.exchange.times;
+
+    self.ticker(data.ticker.symbol);
+    self.company(data.ticker.name);
+    self.prevClose(data.ticker.prevClose);
 
   };
 

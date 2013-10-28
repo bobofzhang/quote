@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.gildata.quote.client.PeriodType;
 import com.gildata.quote.client.QuoteManager;
+import com.gildata.quote.model.Instrument;
 import com.gildata.quote.model.Ticker;
 
 @Controller
@@ -35,9 +36,9 @@ public class QuoteController {
 	}
 	
 	@SubscribeEvent("/info/{symbol}")
-	public Ticker info(@PathVariable String symbol) throws Exception {
+	public Instrument info(@PathVariable String symbol) throws Exception {
 		logger.debug("symbol: {}", symbol);
-		return quoteManager.loadTicker(symbol);
+		return quoteManager.info(symbol);
 	}
 	
 	@MessageMapping("/trend/{symbol}")

@@ -239,7 +239,7 @@ public class QuoteClientHandler extends ChannelInboundHandlerAdapter implements
 	public void ansTrendData(AnsTrendData msg) {
 		if (this.brokerAvailable.get()) {
 			this.messagingTemplate.convertAndSend("/queue/trend/"
-					+ msg.getPrivateKey().getCodeInfo().toSymbol(), new Trend(msg));
+					+ msg.getPrivateKey().getCodeInfo().toSymbol(), msg);
 		}
 	}
 

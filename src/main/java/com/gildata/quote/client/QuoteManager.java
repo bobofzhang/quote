@@ -28,6 +28,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.gildata.quote.model.Exchange;
+import com.gildata.quote.model.Instrument;
 import com.gildata.quote.model.Ticker;
 
 @Service
@@ -35,7 +36,7 @@ public class QuoteManager {
 
 	private static final Logger logger = LoggerFactory
 			.getLogger(QuoteManager.class);
-	
+
 	@Autowired
 	private QuoteClientHandler quoteClientHandler;
 
@@ -82,12 +83,11 @@ public class QuoteManager {
 		List<Integer> times = null;
 
 		Exchange exchange = Exchange.getExchange(marketType);
-		
-		if (exchange != null){
+
+		if (exchange != null) {
 			exchange.setDate(date);
 			times = exchange.getTimes();
 		}
-
 
 		if (times != null) {
 			times.clear();
@@ -129,21 +129,21 @@ public class QuoteManager {
 		} else if (isMarketBourse(marketType, STOCK_MARKET, SZ_BOURSE)) {
 			tks = getTickers();
 		} else if (isMarketBourse(marketType, FUTURES_MARKET, DALIAN_BOURSE)) {
-//			tks = getTickers();
+			// tks = getTickers();
 		} else if (isMarketBourse(marketType, FUTURES_MARKET, SHANGHAI_BOURSE)) {
-//			tks = getTickers();
+			// tks = getTickers();
 		} else if (isMarketBourse(marketType, FUTURES_MARKET, ZHENGZHOU_BOURSE)) {
-//			tks = getTickers();
+			// tks = getTickers();
 		} else if (isMarketBourse(marketType, FUTURES_MARKET, HUANGJIN_BOURSE)) {
-//			tks = getTickers();
+			// tks = getTickers();
 		} else if (isMarketBourse(marketType, FUTURES_MARKET, GUZHI_BOURSE)) {
-//			tks = getTickers();
+			// tks = getTickers();
 		} else if (isMarketBourse(marketType, HK_MARKET, HK_BOURSE)) {
-//			tks = getTickers();
+			// tks = getTickers();
 		} else if (isMarketBourse(marketType, HK_MARKET, GE_BOURSE)) {
-//			tks = getTickers();
+			// tks = getTickers();
 		} else if (isMarketBourse(marketType, HK_MARKET, INDEX_BOURSE)) {
-//			tks = getTickers();
+			// tks = getTickers();
 		} else {
 
 		}
@@ -162,37 +162,37 @@ public class QuoteManager {
 		return getTickerMap().get(symbol);
 	}
 
-	public Ticker loadTicker(String symbol){
+	public Instrument info(String symbol) {
 		Ticker ticker = getTicker(symbol);
-		logger.debug("ticker: {}" , ticker);
+		logger.debug("ticker: {}", ticker);
 
 		if (ticker != null) {
-			CodeInfo code = new CodeInfo(ticker.getMarket(),
-					ticker.getCode());
+			CodeInfo code = new CodeInfo(ticker.getMarket(), ticker.getCode());
 			quoteClientHandler.reqTrend(code);
-			quoteClientHandler.reqLimitTick(code,10);
+			quoteClientHandler.reqLimitTick(code, 10);
 			codes.add(code);
-			//quoteClientHandler.reqRealTime(codes);
+			// quoteClientHandler.reqRealTime(codes);
 			quoteClientHandler.reqAutoPush(codes);
+
+			return new Instrument(ticker);
+		} else {
+			return null;
 		}
-		return ticker;
 
 	}
-	
-	public void trend(String symbol){
+
+	public void trend(String symbol) {
 		Ticker t = getTicker(symbol);
 		if (t != null) {
-			CodeInfo code = new CodeInfo(t.getMarket(),
-					t.getCode());
+			CodeInfo code = new CodeInfo(t.getMarket(), t.getCode());
 			quoteClientHandler.reqTrend(code);
 		}
 	}
-	
-	public void kline(String symbol, PeriodType period, int day){
+
+	public void kline(String symbol, PeriodType period, int day) {
 		Ticker t = getTicker(symbol);
 		if (t != null) {
-			CodeInfo code = new CodeInfo(t.getMarket(),
-					t.getCode());
+			CodeInfo code = new CodeInfo(t.getMarket(), t.getCode());
 			quoteClientHandler.reqDayData(code, period, day);
 		}
 	}
