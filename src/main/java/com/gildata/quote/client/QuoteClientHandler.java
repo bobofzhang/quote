@@ -138,16 +138,13 @@ public class QuoteClientHandler extends ChannelInboundHandlerAdapter implements
 			sc.setBourse(STOCK_MARKET);
 			break;
 		}
-
 		req.getServerCompares().add(sc);
 		ctx.writeAndFlush(req);
-
 	}
 
 	public void reqRealTime(Collection<CodeInfo> codes) {
 		AskData ask = new AskData(EnvelopeType.RT_REALTIME, codes);
 		ctx.writeAndFlush(ask);
-
 	}
 
 	public void reqTrend(CodeInfo code) {
@@ -155,14 +152,12 @@ public class QuoteClientHandler extends ChannelInboundHandlerAdapter implements
 				new CodeInfo[] { code });
 		ask.getPrivateKey().setCodeInfo(code);
 		ctx.writeAndFlush(ask);
-
 	}
 
 	public void reqTick(CodeInfo code) {
 		AskData ask = new AskData(EnvelopeType.RT_TICK, new CodeInfo[] { code });
 		ask.getPrivateKey().setCodeInfo(code);
 		ctx.writeAndFlush(ask);
-
 	}
 
 	public void reqStockTick(CodeInfo code) {
@@ -170,7 +165,6 @@ public class QuoteClientHandler extends ChannelInboundHandlerAdapter implements
 				new CodeInfo[] { code });
 		ask.getPrivateKey().setCodeInfo(code);
 		ctx.writeAndFlush(ask);
-
 	}
 
 	public void reqDayData(CodeInfo code, PeriodType period, int day) {
@@ -180,20 +174,17 @@ public class QuoteClientHandler extends ChannelInboundHandlerAdapter implements
 		ask.setDay((short) day);
 		ask.getPrivateKey().setCodeInfo(code);
 		ctx.writeAndFlush(ask);
-
 	}
 
 	public void reqLimitTick(CodeInfo code, int count) {
 		ReqLimitTick req = new ReqLimitTick(code, (short) count);
 		req.getPrivateKey().setCodeInfo(code);
 		ctx.writeAndFlush(req);
-
 	}
 
 	public void reqAutoPush(Collection<CodeInfo> codes) {
 		AskData ask = new AskData(EnvelopeType.RT_AUTOPUSH, codes);
 		ctx.writeAndFlush(ask);
-
 	}
 
 	public void ansLogin(AnsLogin msg) {
@@ -219,31 +210,25 @@ public class QuoteClientHandler extends ChannelInboundHandlerAdapter implements
 		for (OneMarketData marketData : msg.getMarketDatas()) {
 			quoteManager.initAll(marketData);
 		}
-
 	}
 
 	public void ansServerInfo(AnsServerInfo msg) {
-		logger.debug("{}", msg);
+		
 	}
 
 	public void ansRealTime(AnsRealTime msg) {
-		logger.debug("{}", msg);
 		for (RealTimeData data : msg.getDatas()) {
 			sendQuote(data);
 		}
-
 	}
 
 	public void ansAutoPush(AnsAutoPush msg) {
-		logger.debug("{}", msg);
 		for (RealTimeData data : msg.getDatas()) {
 			sendQuote(data);
 		}
-
 	}
 
 	public void sendQuote(RealTimeData data) {
-
 		if (this.brokerAvailable.get()) {
 			this.messagingTemplate.convertAndSend("/topic/quote/"
 					+ data.getCodeInfo().toSymbol(), data);
@@ -252,32 +237,38 @@ public class QuoteClientHandler extends ChannelInboundHandlerAdapter implements
 	}
 
 	public void ansTrendData(AnsTrendData msg) {
-		logger.debug("{}", msg);
 		if (this.brokerAvailable.get()) {
-
 			this.messagingTemplate.convertAndSend("/queue/trend/"
 					+ msg.getPrivateKey().getCodeInfo().toSymbol(), new Trend(msg));
 		}
 	}
 
 	public void ansKeepActive(AnsKeepActive msg) {
-		logger.debug("{}", msg);
+
 	}
 
 	public void ansStockTick(AnsStockTick msg) {
-		logger.debug("{}", msg);
+		if (this.brokerAvailable.get()) {
+			this.messagingTemplate.convertAndSend("/queue/tick/"
+					+ msg.getPrivateKey().getCodeInfo().toSymbol(), msg);
+		}		
 	}
 
 	public void ansTick(AnsTick msg) {
-		logger.debug("{}", msg);
+		if (this.brokerAvailable.get()) {
+			this.messagingTemplate.convertAndSend("/queue/tick/"
+					+ msg.getPrivateKey().getCodeInfo().toSymbol(), msg);
+		}	
 	}
 
 	public void ansDayData(AnsDayData msg) {
-		logger.debug("{}", msg);
+		if (this.brokerAvailable.get()) {
+			this.messagingTemplate.convertAndSend("/queue/kline/"
+					+ msg.getPrivateKey().getCodeInfo().toSymbol(), msg.getDatas());
+		}
 	}
 
 	public void ansDayDataEx(AnsDayDataEx msg) {
-		logger.debug("{}", msg);
 		if (this.brokerAvailable.get()) {
 			this.messagingTemplate.convertAndSend("/queue/kline/"
 					+ msg.getPrivateKey().getCodeInfo().toSymbol(), msg.getDatas());
@@ -286,7 +277,6 @@ public class QuoteClientHandler extends ChannelInboundHandlerAdapter implements
 
 	@Override
 	public void onApplicationEvent(BrokerAvailabilityEvent event) {
-		logger.debug("onApplicationEvent {}", event);
 		this.brokerAvailable.set(event.isBrokerAvailable());
 	}
 

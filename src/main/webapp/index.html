@@ -196,7 +196,7 @@
               <div class="panel-heading">
                 <h3 class="panel-title">逐笔</h3>
               </div>
-              <table data-bind="with: quote" class="table table-condensed table-borderless">
+              <table class="table table-condensed table-borderless">
                 <thead>
                   <tr>
                     <th>时间</th>
@@ -205,11 +205,11 @@
                     <th></th>
                   </tr>
                 </thead>
-                <tbody>
+                <tbody data-bind="foreach: tick().ticks">
                   <tr>
-                    <td></td>
-                    <td class="number"></td>
-                    <td class="number"></td>  
+                    <td data-bind="text: time"></td>
+                    <td data-bind="text: price" class="number"></td>
+                    <td data-bind="text: vol" class="number"></td>  
                     <td class="number"></td>    
                   </tr>
                 </tbody>

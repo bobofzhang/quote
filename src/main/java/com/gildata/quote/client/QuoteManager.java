@@ -28,7 +28,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.gildata.quote.model.Exchange;
-import com.gildata.quote.model.Instrument;
+import com.gildata.quote.model.Ticker;
 
 @Service
 public class QuoteManager {
@@ -41,39 +41,39 @@ public class QuoteManager {
 
 	private Set<CodeInfo> codes = new HashSet<CodeInfo>();
 
-	private List<Instrument> instruments = new ArrayList<Instrument>();
+	private List<Ticker> tickers = new ArrayList<Ticker>();
 
-	private Map<String, Instrument> instrumentMap = new HashMap<String, Instrument>();
+	private Map<String, Ticker> tickerMap = new HashMap<String, Ticker>();
 
 	public QuoteManager() {
 		super();
 	}
 
-	public List<Instrument> getInstruments() {
-		if (instruments == null) {
-			instruments = new ArrayList<Instrument>();
+	public List<Ticker> getTickers() {
+		if (tickers == null) {
+			tickers = new ArrayList<Ticker>();
 		}
-		return instruments;
+		return tickers;
 	}
 
-	public void setInstruments(List<Instrument> instruments) {
-		this.instruments = instruments;
+	public void setTickers(List<Ticker> tickers) {
+		this.tickers = tickers;
 	}
 
-	public Map<String, Instrument> getInstrumentMap() {
-		if (instrumentMap == null) {
-			instrumentMap = new HashMap<String, Instrument>();
+	public Map<String, Ticker> getTickerMap() {
+		if (tickerMap == null) {
+			tickerMap = new HashMap<String, Ticker>();
 		}
-		return instrumentMap;
+		return tickerMap;
 	}
 
-	public void setInstrumentMap(Map<String, Instrument> instrumentMap) {
-		this.instrumentMap = instrumentMap;
+	public void setTickerMap(Map<String, Ticker> tickerMap) {
+		this.tickerMap = tickerMap;
 	}
 
 	public void initAll(OneMarketData marketData) {
 		initTimes(marketData);
-		initInstruments(marketData);
+		initTickers(marketData);
 	}
 
 	public void initTimes(OneMarketData marketData) {
@@ -88,45 +88,6 @@ public class QuoteManager {
 			times = exchange.getTimes();
 		}
 
-//		if (isMarketBourse(marketType, STOCK_MARKET, SH_BOURSE)) {
-//			Exchange.SH_STOCK_EXCHANGE.setDate(date);
-//			times = Exchange.SH_STOCK_EXCHANGE.getTimes();
-//
-//		} else if (isMarketBourse(marketType, STOCK_MARKET, SZ_BOURSE)) {
-//			Exchange.SZ_STOCK_EXCHANGE.setDate(date);
-//			times = Exchange.SZ_STOCK_EXCHANGE.getTimes();
-//
-//		} else if (isMarketBourse(marketType, FUTURES_MARKET, DALIAN_BOURSE)) {
-//			Exchange.DL_FUTURES_EXCHANGE.setDate(date);
-//			times = Exchange.DL_FUTURES_EXCHANGE.getTimes();
-//
-//		} else if (isMarketBourse(marketType, FUTURES_MARKET, SHANGHAI_BOURSE)) {
-//			Exchange.SH_FUTURES_EXCHANGE.setDate(date);
-//			times = Exchange.SH_FUTURES_EXCHANGE.getTimes();
-//
-//		} else if (isMarketBourse(marketType, FUTURES_MARKET, ZHENGZHOU_BOURSE)) {
-//			Exchange.ZZ_FUTURES_EXCHANGE.setDate(date);
-//			times = Exchange.ZZ_FUTURES_EXCHANGE.getTimes();
-//
-//		} else if (isMarketBourse(marketType, FUTURES_MARKET, HUANGJIN_BOURSE)) {
-//			Exchange.GD_FUTURES_EXCHANGE.setDate(date);
-//			times = Exchange.GD_FUTURES_EXCHANGE.getTimes();
-//
-//		} else if (isMarketBourse(marketType, FUTURES_MARKET, GUZHI_BOURSE)) {
-//			Exchange.IF_FUTURES_EXCHANGE.setDate(date);
-//			times = Exchange.IF_FUTURES_EXCHANGE.getTimes();
-//
-//		} else if (isMarketBourse(marketType, HK_MARKET, HK_BOURSE)) {
-//			Exchange.HK_STOCK_EXCHANGE.setDate(date);
-//			times = Exchange.HK_STOCK_EXCHANGE.getTimes();
-//
-//		} else if (isMarketBourse(marketType, HK_MARKET, GE_BOURSE)) {
-//
-//		} else if (isMarketBourse(marketType, HK_MARKET, INDEX_BOURSE)) {
-//
-//		} else {
-//
-//		}
 
 		if (times != null) {
 			times.clear();
@@ -157,92 +118,81 @@ public class QuoteManager {
 
 	}
 
-	public void initInstruments(OneMarketData marketData) {
+	public void initTickers(OneMarketData marketData) {
 
 		short marketType = marketData.getBourseInfo().getMarketType();
 
-		List<Instrument> ins = null;
+		List<Ticker> tks = null;
 
 		if (isMarketBourse(marketType, STOCK_MARKET, SH_BOURSE)) {
-			ins = getInstruments();
-
+			tks = getTickers();
 		} else if (isMarketBourse(marketType, STOCK_MARKET, SZ_BOURSE)) {
-			ins = getInstruments();
-
+			tks = getTickers();
 		} else if (isMarketBourse(marketType, FUTURES_MARKET, DALIAN_BOURSE)) {
-//			ins = getInstruments();
-
+//			tks = getTickers();
 		} else if (isMarketBourse(marketType, FUTURES_MARKET, SHANGHAI_BOURSE)) {
-//			ins = getInstruments();
-
+//			tks = getTickers();
 		} else if (isMarketBourse(marketType, FUTURES_MARKET, ZHENGZHOU_BOURSE)) {
-//			ins = getInstruments();
-
+//			tks = getTickers();
 		} else if (isMarketBourse(marketType, FUTURES_MARKET, HUANGJIN_BOURSE)) {
-//			ins = getInstruments();
-
+//			tks = getTickers();
 		} else if (isMarketBourse(marketType, FUTURES_MARKET, GUZHI_BOURSE)) {
-
-//			ins = getInstruments();
+//			tks = getTickers();
 		} else if (isMarketBourse(marketType, HK_MARKET, HK_BOURSE)) {
-//			ins = getInstruments();
-
+//			tks = getTickers();
 		} else if (isMarketBourse(marketType, HK_MARKET, GE_BOURSE)) {
-//			ins = getInstruments();
+//			tks = getTickers();
 		} else if (isMarketBourse(marketType, HK_MARKET, INDEX_BOURSE)) {
-//			ins = getInstruments();
+//			tks = getTickers();
 		} else {
 
 		}
 
-		if (ins != null) {
+		if (tks != null) {
 			for (StockInitInfo stock : marketData.getStockInitInfos()) {
-				Instrument instrument = new Instrument(stock);
-				// logger.debug("{}",instrument);
-				ins.add(instrument);
-
-				getInstrumentMap().put(instrument.getSymbol(), instrument);
+				Ticker t = new Ticker(stock);
+				tks.add(t);
+				getTickerMap().put(t.getSymbol(), t);
 			}
-
 		}
 
 	}
 
-	public Instrument getInstrument(String symbol) {
-		return getInstrumentMap().get(symbol);
+	public Ticker getTicker(String symbol) {
+		return getTickerMap().get(symbol);
 	}
 
-	public Instrument subscribe(String symbol){
-		Instrument instrument = getInstrument(symbol);
-		logger.debug("instrument:{}", instrument);
-		if (instrument != null) {
-			CodeInfo code = new CodeInfo(instrument.getMarket(),
-					instrument.getCode());
+	public Ticker loadTicker(String symbol){
+		Ticker ticker = getTicker(symbol);
+		logger.debug("ticker: {}" , ticker);
+
+		if (ticker != null) {
+			CodeInfo code = new CodeInfo(ticker.getMarket(),
+					ticker.getCode());
 			quoteClientHandler.reqTrend(code);
-			quoteClientHandler.reqStockTick(code);
+			quoteClientHandler.reqLimitTick(code,10);
 			codes.add(code);
-			
 			//quoteClientHandler.reqRealTime(codes);
 			quoteClientHandler.reqAutoPush(codes);
 		}
-		return instrument;
+		return ticker;
 
 	}
 	
 	public void trend(String symbol){
-		Instrument instrument = getInstrument(symbol);
-		if (instrument != null) {
-			CodeInfo code = new CodeInfo(instrument.getMarket(),
-					instrument.getCode());
+		Ticker t = getTicker(symbol);
+		if (t != null) {
+			CodeInfo code = new CodeInfo(t.getMarket(),
+					t.getCode());
 			quoteClientHandler.reqTrend(code);
 		}
 	}
 	
 	public void kline(String symbol, PeriodType period, int day){
-		Instrument instrument = getInstrument(symbol);
-		if (instrument != null) {
-			CodeInfo code = new CodeInfo(instrument.getMarket(),
-					instrument.getCode());
+		Ticker t = getTicker(symbol);
+		if (t != null) {
+			CodeInfo code = new CodeInfo(t.getMarket(),
+					t.getCode());
 			quoteClientHandler.reqDayData(code, period, day);
 		}
 	}

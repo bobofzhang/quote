@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.gildata.quote.client.PeriodType;
 import com.gildata.quote.client.QuoteManager;
-import com.gildata.quote.model.Instrument;
+import com.gildata.quote.model.Ticker;
 
 @Controller
 public class QuoteController {
@@ -27,17 +27,17 @@ public class QuoteController {
 	@Autowired
 	private QuoteManager quoteManager;
 	
-	@RequestMapping(value = "/instruments")
+	@RequestMapping(value = "/tickers")
 	@ResponseBody
-	public List<Instrument> instruments() {
-		return quoteManager.getInstruments();
+	public List<Ticker> tickers() {
+		return quoteManager.getTickers();
 
 	}
 	
-	@SubscribeEvent("/ticker/{symbol}")
-	public Instrument subscribe(@PathVariable String symbol) throws Exception {
+	@SubscribeEvent("/info/{symbol}")
+	public Ticker info(@PathVariable String symbol) throws Exception {
 		logger.debug("symbol: {}", symbol);
-		return quoteManager.subscribe(symbol);
+		return quoteManager.loadTicker(symbol);
 	}
 	
 	@MessageMapping("/trend/{symbol}")

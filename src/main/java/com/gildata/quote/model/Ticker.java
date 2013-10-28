@@ -1,12 +1,13 @@
 package com.gildata.quote.model;
 
+import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 
 import com.gildata.quote.client.QuoteUtils;
 import com.gildata.quote.client.StockInitInfo;
 
-public class Instrument {
+public class Ticker {
 
 	private String symbol;
 
@@ -22,7 +23,7 @@ public class Instrument {
 
 	private int prevClose;
 
-	public Instrument(StockInitInfo info) {
+	public Ticker(StockInitInfo info) {
 		super();
 		this.symbol = info.getStockCode().toSymbol();
 		this.code = info.getStockCode().getCode();
@@ -101,4 +102,18 @@ public class Instrument {
 
 	}
 
+	@Override
+	public boolean equals(Object obj) {
+		   if (obj == null) { return false; }
+		   if (obj == this) { return true; }
+		   if (obj.getClass() != getClass()) {
+		     return false;
+		   }
+		   Ticker rhs = (Ticker) obj;
+		   return new EqualsBuilder()
+		                 .appendSuper(super.equals(obj))
+		                 .append(symbol, rhs.symbol)
+		                 .isEquals();
+	}
+	
 }

@@ -34,11 +34,6 @@ function formatVolume(volume) {
 }
 
 (function() {
-  
-  $('[data-toggle=offcanvas]').click(function() {
-    $('.row-offcanvas').toggleClass('active');
-  });
-  
   var socket = new SockJS('/quote');
   var stompClient = Stomp.over(socket);
   var symbol = getURLParameter('symbol', '600570.SH');
@@ -47,10 +42,14 @@ function formatVolume(volume) {
   ko.applyBindings(appModel);
   appModel.connect();
 
+  $('[data-toggle=offcanvas]').click(function() {
+    $('.row-offcanvas').toggleClass('active');
+  });
+  
   $('input.tapeahead').typeahead({
-    name : 'instruments',
+    name : 'tickers',
     valueKey : 'symbol',
-    prefetch : 'instruments',
+    prefetch : 'tickers',
     limit : 10,
     template : '<p><strong>{{name}}</strong> {{symbol}}</p>',
     engine : Hogan
@@ -67,12 +66,15 @@ function formatVolume(volume) {
 })();
 
 function ApplicationModel(stompClient, symbol) {
+  
   var self = this;
 
   self.username = ko.observable();
   self.quote = ko.observable(new QuoteModel(stompClient, symbol));
   self.trend = ko.observable(new TrendModel(stompClient, symbol));
   self.kline = ko.observable(new KlineModel(stompClient, symbol));
+  self.tick = ko.observable(new TickModel());
+  
   self.notifications = ko.observableArray();
 
   self.connect = function() {
@@ -81,15 +83,16 @@ function ApplicationModel(stompClient, symbol) {
       var queueSuffix = frame.headers['queue-suffix'];
       self.username(userName);
 
-      stompClient.subscribe("/app/ticker/" + symbol, function(message) {
+      stompClient.subscribe("/app/info/" + symbol, function(message) {
         self.quote().loadTicker(JSON.parse(message.body));
       });
       
       stompClient.subscribe("/topic/quote/" + symbol, function(message) {
         var data = JSON.parse(message.body);
         self.quote().processQuote(data);
-        self.trend().updateTrend(data);
-        self.kline().updateKline(data);
+        self.trend().processQuote(data);
+        self.kline().processQuote(data);
+        self.tick().processQuote(data);
       });
       
       stompClient.subscribe("/queue/trend/" + symbol, function(message) {
@@ -100,6 +103,10 @@ function ApplicationModel(stompClient, symbol) {
 
       stompClient.subscribe("/queue/kline/" + symbol, function(message) {
         self.kline().processKline(JSON.parse(message.body));
+      });
+      
+      stompClient.subscribe("/queue/tick/" + symbol, function(message) {
+        self.tick().loadTicks(JSON.parse(message.body));
       });
 
       stompClient.subscribe("/queue/errors/" + queueSuffix, function(message) {
@@ -121,7 +128,38 @@ function ApplicationModel(stompClient, symbol) {
 
 }
 
+function TickModel() {
+  
+  var self = this;
 
+  self.ticks = ko.observableArray();
+  
+  self.loadTicks = function(data) {
+    for ( var i = 0; i < data.ticks.length; i++) {
+      var t = new Tick(data.ticks[i]);
+      self.ticks.push(t);
+    }    
+    
+
+  };
+  
+  self.processQuote = function(quote) {
+    
+
+
+  };
+  
+}
+
+function Tick(data) {
+  var self = this;
+
+  self.time = data.time;
+  self.price = data.price;
+  self.vol = data.vol;
+
+
+};
 
 function TrendModel(stompClient, symbol) {
   var self = this;
@@ -167,7 +205,7 @@ function TrendModel(stompClient, symbol) {
     });
   };
   
-  self.updateTrend = function(data) {
+  self.processQuote = function(data) {
   
   };
 
@@ -244,7 +282,7 @@ function KlineModel(stompClient, symbol) {
 
   };
   
-  self.updateKline = function(data) {
+  self.processQuote = function(data) {
     
   };
 
