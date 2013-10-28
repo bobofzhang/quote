@@ -220,13 +220,22 @@ public class QuoteManager {
 					instrument.getCode());
 			quoteClientHandler.reqTrend(code);
 			quoteClientHandler.reqStockTick(code);
-			
 			codes.add(code);
-			quoteClientHandler.reqRealTime(codes);
+			
+			//quoteClientHandler.reqRealTime(codes);
 			quoteClientHandler.reqAutoPush(codes);
 		}
 		return instrument;
 
+	}
+	
+	public void trend(String symbol){
+		Instrument instrument = getInstrument(symbol);
+		if (instrument != null) {
+			CodeInfo code = new CodeInfo(instrument.getMarket(),
+					instrument.getCode());
+			quoteClientHandler.reqTrend(code);
+		}
 	}
 	
 	public void kline(String symbol, PeriodType period, int day){

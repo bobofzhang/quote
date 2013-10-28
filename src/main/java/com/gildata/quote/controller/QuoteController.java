@@ -40,6 +40,13 @@ public class QuoteController {
 		return quoteManager.subscribe(symbol);
 	}
 	
+	@MessageMapping("/trend/{symbol}")
+	public void trend(@PathVariable String symbol) throws Exception {
+		logger.debug("symbol: {}", symbol);
+	    quoteManager.trend(symbol);
+	}
+	
+	
 	@MessageMapping("/kline/{symbol}")
 	public void kline(@PathVariable String symbol) throws Exception {
 		logger.debug("symbol: {}", symbol);

@@ -4,23 +4,47 @@ function getURLParameter(name, defaultValue) {
 
 function colorOfValue(value, base) {
   if (value > base) {
-    return "upColor";
+    return 'upColor';
   } else if (value < base) {
-    return "downColor";
+    return 'downColor';
   } else {
-    return "";
+    return '';
+  }
+}
+
+function formatAmount(amount) {
+  if (amount > 100000000) {
+    return (amount / 100000000).toFixed(4) + '亿元';
+
+  } else if (amount > 10000) {
+    return (amount / 10000).toFixed(2) +'万元';
+  } else {
+    return amount + '元';
+  }
+}
+
+function formatVolume(volume) {
+  if (volume > 1000000) {
+    return (volume / 1000000).toFixed(2) + '万手';
+  } else if (volume > 100) {
+    return (volume / 100).toFixed(0) + '手';
+  } else {
+    return volume + '股';
   }
 }
 
 (function() {
-
+  
+  $('[data-toggle=offcanvas]').click(function() {
+    $('.row-offcanvas').toggleClass('active');
+  });
+  
   var socket = new SockJS('/quote');
   var stompClient = Stomp.over(socket);
   var symbol = getURLParameter('symbol', '600570.SH');
 
   var appModel = new ApplicationModel(stompClient, symbol);
   ko.applyBindings(appModel);
-
   appModel.connect();
 
   $('input.tapeahead').typeahead({
@@ -33,11 +57,11 @@ function colorOfValue(value, base) {
   });
 
   $('#chartTab a[href="#trend"]').on('shown.bs.tab', function(e) {
-
+    appModel.trend().prepareTrend();
   });
 
-  $('#chartTab a[href="#kline-day"]').on('shown.bs.tab', function(e) {
-    appModel.kline().sendKline();
+  $('#chartTab a[href="#kline"]').on('shown.bs.tab', function(e) {
+    appModel.kline().prepareKline();
   });
 
 })();
@@ -53,21 +77,25 @@ function ApplicationModel(stompClient, symbol) {
 
   self.connect = function() {
     stompClient.connect('guest', 'guest', function(frame) {
-
-      console.log('Connected ' + frame);
       var userName = frame.headers['user-name'];
       var queueSuffix = frame.headers['queue-suffix'];
-
       self.username(userName);
 
       stompClient.subscribe("/app/ticker/" + symbol, function(message) {
         self.quote().loadTicker(JSON.parse(message.body));
       });
+      
       stompClient.subscribe("/topic/quote/" + symbol, function(message) {
-        self.quote().processQuote(JSON.parse(message.body));
+        var data = JSON.parse(message.body);
+        self.quote().processQuote(data);
+        self.trend().updateTrend(data);
+        self.kline().updateKline(data);
       });
+      
       stompClient.subscribe("/queue/trend/" + symbol, function(message) {
-        self.trend().processTrend(JSON.parse(message.body));
+        var data = JSON.parse(message.body);
+        self.quote().processQuote(data);
+        self.trend().processTrend(data);
       });
 
       stompClient.subscribe("/queue/kline/" + symbol, function(message) {
@@ -89,6 +117,157 @@ function ApplicationModel(stompClient, symbol) {
     if (self.notifications().length > 5) {
       self.notifications.shift();
     }
+  };
+
+}
+
+
+
+function TrendModel(stompClient, symbol) {
+  var self = this;
+  
+  self.price = [];
+  self.volume = [];
+  
+  self.prepareTrend = function() {
+    stompClient.send("/app/trend/" + symbol, {}, '');
+  };
+  
+  self.showTrend = function() {
+    self.chart = $('#chart').highcharts('StockChart', {
+      rangeSelector : {
+        enabled : false,
+        selected : 1
+      },
+
+      yAxis : [ {
+        height : 200,
+        lineWidth : 1
+      }, {
+        top : 200,
+        height : 100,
+        offset : 0,
+        lineWidth : 1
+      } ],
+
+      series : [ {
+        type : 'spline',
+        name : '价格',
+        data : self.price,
+        tooltip : {
+          xDateFormat : '%b%e日 %H:%M',
+        }
+      }, {
+        type : 'column',
+        name : '成交量',
+        data : self.volume,
+        yAxis : 1,
+        color : 'gray'
+      } ]
+    });
+  };
+  
+  self.updateTrend = function(data) {
+  
+  };
+
+  self.processTrend = function(data) {
+
+    var times = data.times;
+    var items = data.items;
+    self.price = [];
+    self.volume = [];
+
+    for (var i = 0; i < times.length; i++) {
+
+      var m = +moment(data.date, 'YYYYMMDD').add('minutes', times[i]);
+
+      if (items.length > i) {
+        self.price.push([ m, items[i].price / 1000 ]);
+        if (i > 1) {
+          self.volume.push([ m, items[i].vol - items[i - 1].vol ]);
+        } else {
+          self.volume.push([ m, items[i].vol ]);
+        }
+
+      } else {
+        self.price.push([ m, null ]);
+        self.volume.push([ m, null ]);
+      }
+    }
+    
+    self.showTrend();
+  };
+}
+
+
+
+function KlineModel(stompClient, symbol) {
+  var self = this;
+  
+  self.ohlc = [];
+  self.volume = [];
+  
+  self.prepareKline = function() {
+    stompClient.send("/app/kline/" + symbol, {}, '');
+  };
+
+  self.showKline = function() {
+    self.chart = $('#chart').highcharts('StockChart', {
+      rangeSelector : {
+        enabled : false,
+        inputEnabled : false,
+        selected : 1
+      },
+
+      yAxis : [ {
+        height : 200,
+        lineWidth : 2
+      }, {
+        top : 200,
+        height : 100,
+        offset : 0,
+        lineWidth : 2
+      } ],
+
+      series : [ {
+        type : 'candlestick',
+        name : symbol,
+        data : self.ohlc
+      }, {
+        type : 'column',
+        name : '成交量',
+        data : self.volume,
+        yAxis : 1
+      } ]
+    });   
+
+  };
+  
+  self.updateKline = function(data) {
+    
+  };
+
+  self.processKline = function(data) {
+    self.ohlc = [];
+    self.volume = [];
+    
+    for (var i = 0; i < data.length; i++) {
+      var date = +moment(data[i].date, 'YYYYMMDD');
+
+      self.ohlc.push([ date, // the date
+      data[i].open / 1000, // open
+      data[i].high / 1000, // high
+      data[i].low / 1000, // low
+      data[i].close / 1000 // close
+      ]);
+
+      self.volume.push([ date, // the date
+      data[i].volume // the volume
+      ]);
+    }
+    self.showKline();
+
   };
 
 }
@@ -157,11 +336,11 @@ function QuoteModel(stompClient, symbol) {
   });
 
   self.formattedVolume = ko.computed(function() {
-    return (self.vol() / 1000000).toFixed(2) + "万手";
+    return formatVolume(self.vol());
   });
 
   self.formattedAmount = ko.computed(function() {
-    return (self.amount() / 100000000).toFixed(2) + "亿元";
+    return formatAmount(self.amount());
   });
 
   self.isEmpty = ko.computed(function() {
@@ -266,124 +445,4 @@ function QuoteModel(stompClient, symbol) {
     self.sellVol(other.sellVol);
 
   };
-}
-
-function TrendModel(stompClient, symbol) {
-  var self = this;
-
-  self.processTrend = function(data) {
-    // var price = [], volume = [], dataLength = data.length;
-    //
-    // for (var i = 0; i < dataLength; i++) {
-    // price.push([ data[i][0], // the date
-    // data[i][1], // the price
-    // ]);
-    //
-    // volume.push([ data[i][0], // the date
-    // data[i][2] // the volume
-    // ]);
-    // }
-    //
-    // // create the chart
-    // self.chart = $('#content').highcharts('StockChart', {
-    // rangeSelector : {
-    // enabled : false,
-    // selected : 1
-    // },
-    //
-    // yAxis : [ {
-    // height : 250,
-    // lineWidth : 1
-    // }, {
-    // top : 300,
-    // height : 100,
-    // offset : 0,
-    // lineWidth : 1
-    // } ],
-    //
-    // series : [ {
-    // type : 'spline',
-    // name : symbol,
-    // data : price,
-    // color : 'white',
-    // tooltip : {
-    // xDateFormat : '%b%e日 %H:%M',
-    // }
-    // }, {
-    // type : 'column',
-    // name : '成交量',
-    // data : volume,
-    // yAxis : 1,
-    // color : 'gray'
-    // } ]
-    // });
-
-  };
-
-}
-
-function KlineModel(stompClient, symbol) {
-  var self = this;
-
-  self.sendKline = function() {
-    stompClient.send("/app/kline/" + symbol, {}, '');
-
-  };
-
-  self.processKline = function(data) {
-    var ohlc = [], volume = [];
-
-    for (var i = 0; i < data.length; i++) {
-      var ds = "" + data[i].date;
-      console.log(ds);
-      ds = ds.substring(0, 4) + "-" + ds.substring(4, 6) + "-" + ds.substring(6, 8);
-
-      console.log(ds);
-
-      var date = new Date(ds);
-      console.log(date);
-
-      ohlc.push([ date.getTime(), // the date
-      data[i].open / 1000, // open
-      data[i].high / 1000, // high
-      data[i].low / 1000, // low
-      data[i].close / 1000 // close
-      ]);
-
-      volume.push([ date.getTime(), // the date
-      data[i].volume // the volume
-      ]);
-    }
-
-    // create the chart
-    self.chart = $('#chart').highcharts('StockChart', {
-      rangeSelector : {
-        enabled : false,
-        inputEnabled : false,
-        selected : 1
-      },
-
-      yAxis : [ {
-        height : 200,
-        lineWidth : 2
-      }, {
-        top : 200,
-        height : 100,
-        offset : 0,
-        lineWidth : 2
-      } ],
-
-      series : [ {
-        type : 'candlestick',
-        name : symbol,
-        data : ohlc
-      }, {
-        type : 'column',
-        name : '成交量',
-        data : volume,
-        yAxis : 1
-      } ]
-    });
-  };
-
 }

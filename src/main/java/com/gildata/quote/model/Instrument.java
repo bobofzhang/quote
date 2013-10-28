@@ -1,7 +1,5 @@
 package com.gildata.quote.model;
 
-import java.math.BigDecimal;
-
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 

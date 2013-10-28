@@ -18,6 +18,8 @@ import org.springframework.messaging.core.MessageSendingOperations;
 import org.springframework.messaging.simp.BrokerAvailabilityEvent;
 import org.springframework.stereotype.Component;
 
+import com.gildata.quote.model.Trend;
+
 /**
  * 
  * @author luhuiguo
@@ -252,8 +254,9 @@ public class QuoteClientHandler extends ChannelInboundHandlerAdapter implements
 	public void ansTrendData(AnsTrendData msg) {
 		logger.debug("{}", msg);
 		if (this.brokerAvailable.get()) {
+
 			this.messagingTemplate.convertAndSend("/queue/trend/"
-					+ msg.getPrivateKey().getCodeInfo().toSymbol(), msg);
+					+ msg.getPrivateKey().getCodeInfo().toSymbol(), new Trend(msg));
 		}
 	}
 
