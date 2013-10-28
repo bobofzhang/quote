@@ -1,3 +1,4 @@
+
 function getURLParameter(name, defaultValue) {
   return decodeURI((RegExp(name + '=' + '(.+?)(&|$)').exec(location.search) || [ , defaultValue ])[1]);
 }
@@ -57,10 +58,14 @@ function formatVolume(volume) {
 
   $('#chartTab a[href="#trend"]').on('shown.bs.tab', function(e) {
     appModel.trend().prepareTrend();
+    appModel.trend().active = true;
+    appModel.kline().active = false;
   });
 
   $('#chartTab a[href="#kline"]').on('shown.bs.tab', function(e) {
     appModel.kline().prepareKline();
+    appModel.trend().active = false;
+    appModel.kline().active = true;
   });
 
 })();
@@ -150,7 +155,7 @@ function TickModel() {
     for (var i = 0; i < data.ticks.length; i++) {
       var t = data.ticks[i];
 
-      var m = moment(self.date, 'YYYYMMDD').add('m', self.times[t.time - 1]).add('s', t.second).format('HH:mm:ss');
+      var m = moment(self.date, 'YYYYMMDD').add('m', self.times[t.time]).add('s', t.second).format('HH:mm:ss');
 
       var v = t.vol;
       if (i > 1) {
@@ -197,6 +202,7 @@ function Tick(time, price, vol, prevClose) {
 function TrendModel(stompClient, symbol) {
   var self = this;
 
+  self.active = true;
   self.price = [];
   self.volume = [];
 
@@ -208,6 +214,80 @@ function TrendModel(stompClient, symbol) {
   self.prepareTrend = function() {
     stompClient.send("/app/trend/" + symbol, {}, '');
   };
+  
+
+
+  self.processTrend = function(data) {
+
+    var times = self.times;
+    var items = data.items;
+    self.price = [];
+    self.volume = [];
+
+    for (var i = 0; i < times.length; i++) {
+      
+      self.pos = i;
+
+      var m = +moment(self.date, 'YYYYMMDD').add('minutes', times[i]);
+
+      if (items.length > i) {
+        self.price.push([ m, items[i].price / 1000 ]);
+        if (i > 1) {
+          self.volume.push([ m, items[i].vol - items[i - 1].vol ]);
+        } else {
+          self.volume.push([ m, items[i].vol ]);
+        }
+
+      } else {
+        self.price.push([ m, null ]);
+        self.volume.push([ m, null ]);
+      }
+    }
+
+    self.showTrend();
+  };
+  
+  self.processQuote = function(data) {
+    
+//    if (self.active){
+//      
+//      var data = quote.data;
+//      var other = quote.otherData;
+//      
+//      if (self.pos >= other.time){
+//        var m = +moment(self.date, 'YYYYMMDD').add('minutes', times[other.time]);
+//        self.price[other.time] = [ m, data.price ]
+//        if (other.time > 1) {
+//          self.volume.push([ m, items[i].vol - items[i - 1].vol ]);
+//        } else {
+//          self.volume.push([ m, items[i].vol ]);
+//        }
+//        
+//      }else{
+//        while (self.pos < other.time){
+//          self.pos ++;
+//          var m = +moment(self.date, 'YYYYMMDD').add('minutes', times[self.pos]);
+//          if (self.times[self.pos] >= other.time){
+//            self.price.push([ m, data.price ]);
+//            self.volume.push([ m, 0 ]);          
+//          }else{
+//            self.price.push([ m, self.price[self.pos - 1] ]);
+//            self.volume.push([ m, 0 ]);
+//            
+//          }          
+//        }
+//        
+//      }
+//      
+//        
+//    
+//        
+//        
+//      }
+//
+//    }
+  };
+
 
   self.showTrend = function() {
     self.chart = $('#chart').highcharts('StockChart', {
@@ -243,42 +323,12 @@ function TrendModel(stompClient, symbol) {
     });
   };
 
-  self.processQuote = function(data) {
-
-  };
-
-  self.processTrend = function(data) {
-
-    var times = self.times;
-    var items = data.items;
-    self.price = [];
-    self.volume = [];
-
-    for (var i = 0; i < times.length; i++) {
-
-      var m = +moment(self.date, 'YYYYMMDD').add('minutes', times[i]);
-
-      if (items.length > i) {
-        self.price.push([ m, items[i].price / 1000 ]);
-        if (i > 1) {
-          self.volume.push([ m, items[i].vol - items[i - 1].vol ]);
-        } else {
-          self.volume.push([ m, items[i].vol ]);
-        }
-
-      } else {
-        self.price.push([ m, null ]);
-        self.volume.push([ m, null ]);
-      }
-    }
-
-    self.showTrend();
-  };
 }
 
 function KlineModel(stompClient, symbol) {
   var self = this;
-
+  
+  self.active = false;
   self.ohlc = [];
   self.volume = [];
 
@@ -319,7 +369,9 @@ function KlineModel(stompClient, symbol) {
   };
 
   self.processQuote = function(data) {
-
+    if (self.active){
+      
+    }
   };
 
   self.processKline = function(data) {
