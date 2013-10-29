@@ -1,4 +1,3 @@
-
 function getURLParameter(name, defaultValue) {
   return decodeURI((RegExp(name + '=' + '(.+?)(&|$)').exec(location.search) || [ , defaultValue ])[1]);
 }
@@ -58,14 +57,14 @@ function formatVolume(volume) {
 
   $('#chartTab a[href="#trend"]').on('shown.bs.tab', function(e) {
     appModel.trend().prepareTrend();
-    appModel.trend().active = true;
-    appModel.kline().active = false;
+    appModel.trend().status = 1;
+    appModel.kline().status = 0;
   });
 
   $('#chartTab a[href="#kline"]').on('shown.bs.tab', function(e) {
     appModel.kline().prepareKline();
-    appModel.trend().active = false;
-    appModel.kline().active = true;
+    appModel.trend().status = 0;
+    appModel.kline().status = 1;
   });
 
 })();
@@ -177,10 +176,11 @@ function TickModel() {
   };
 
   self.processQuote = function(quote) {
-    
+
     var data = quote.data;
     var other = quote.otherData;
-    var m = moment(self.date, 'YYYYMMDD').add('m', self.times[other.time - 1]).add('s', other.second).format('HH:mm:ss');
+    var m = moment(self.date, 'YYYYMMDD').add('m', self.times[other.time - 1]).add('s', other.second)
+        .format('HH:mm:ss');
 
     self.addTick(m, data.price, other.current);
   };
@@ -193,7 +193,7 @@ function Tick(time, price, vol, prevClose) {
   self.time = time;
   self.price = price;
   self.vol = vol;
-  
+
   self.priceStyle = ko.computed(function() {
     return colorOfValue(self.price, self.prevClose);
   });
@@ -205,28 +205,27 @@ function TrendModel(stompClient, symbol) {
   self.active = true;
   self.price = [];
   self.volume = [];
+  self.items = [];
 
   self.initTimes = function(data) {
     self.date = data.exchange.date;
     self.times = data.exchange.times;
+    self.prevClose = data.ticker.prevClose;
   };
 
   self.prepareTrend = function() {
     stompClient.send("/app/trend/" + symbol, {}, '');
   };
-  
-
 
   self.processTrend = function(data) {
 
     var times = self.times;
     var items = data.items;
+    self.items = items;
     self.price = [];
     self.volume = [];
 
     for (var i = 0; i < times.length; i++) {
-      
-      self.pos = i;
 
       var m = +moment(self.date, 'YYYYMMDD').add('minutes', times[i]);
 
@@ -246,51 +245,71 @@ function TrendModel(stompClient, symbol) {
 
     self.showTrend();
   };
-  
-  self.processQuote = function(data) {
-    
-//    if (self.active){
-//      
-//      var data = quote.data;
-//      var other = quote.otherData;
-//      
-//      if (self.pos >= other.time){
-//        var m = +moment(self.date, 'YYYYMMDD').add('minutes', times[other.time]);
-//        self.price[other.time] = [ m, data.price ]
-//        if (other.time > 1) {
-//          self.volume.push([ m, items[i].vol - items[i - 1].vol ]);
-//        } else {
-//          self.volume.push([ m, items[i].vol ]);
-//        }
-//        
-//      }else{
-//        while (self.pos < other.time){
-//          self.pos ++;
-//          var m = +moment(self.date, 'YYYYMMDD').add('minutes', times[self.pos]);
-//          if (self.times[self.pos] >= other.time){
-//            self.price.push([ m, data.price ]);
-//            self.volume.push([ m, 0 ]);          
-//          }else{
-//            self.price.push([ m, self.price[self.pos - 1] ]);
-//            self.volume.push([ m, 0 ]);
-//            
-//          }          
-//        }
-//        
-//      }
-//      
-//        
-//    
-//        
-//        
-//      }
-//
-//    }
+
+  self.processQuote = function(quote) {
+
+    if (self.status > 1) {
+      var times = self.times;
+      var items = self.items;
+      var data = quote.data;
+      var other = quote.otherData;
+
+      var t = other.time;
+
+      if (items.length - 1 > t) {
+        self.prepareTrend();
+      } else {
+        if (items.length == 0) {
+          var item = {};
+          item.price = self.prevClose;
+          item.vol = 0;
+          items.push(item);
+        }
+
+        while (items.length <= t) {
+          var last = items[items.length - 1];
+          var item = {};
+          item.price = last.price;
+          item.vol = last.vol;
+          items.push(item);
+        }
+
+        var last = items[items.length - 1];
+
+        last.price = data.price;
+        last.vol = data.volume;
+
+        self.price = [];
+        self.volume = [];
+
+        for (var i = 0; i < times.length; i++) {
+
+          var m = +moment(self.date, 'YYYYMMDD').add('minutes', times[i]);
+
+          if (items.length > i) {
+            self.price.push([ m, items[i].price / 1000 ]);
+            if (i > 1) {
+              self.volume.push([ m, items[i].vol - items[i - 1].vol ]);
+            }
+
+          } else {
+            self.price.push([ m, null ]);
+            self.volume.push([ m, null ]);
+          }
+        }
+      }
+
+      var chart = $('#chart').highcharts();
+      var serie0 = chart.series[0];
+      var serie1 = chart.series[1];
+      serie0.setData(self.price);
+      serie1.setData(self.volume);
+
+    }
   };
 
-
   self.showTrend = function() {
-    self.chart = $('#chart').highcharts('StockChart', {
+    $('#chart').highcharts('StockChart', {
       rangeSelector : {
         enabled : false,
         selected : 1
@@ -321,19 +340,90 @@ function TrendModel(stompClient, symbol) {
         color : 'gray'
       } ]
     });
+
+    self.status = 2;
   };
 
-}
+};
 
 function KlineModel(stompClient, symbol) {
   var self = this;
-  
+
   self.active = false;
   self.ohlc = [];
   self.volume = [];
 
   self.prepareKline = function() {
     stompClient.send("/app/kline/" + symbol, {}, '');
+  };
+
+  self.processKline = function(data) {
+    self.ohlc = [];
+    self.volume = [];
+
+    for (var i = 0; i < data.length; i++) {
+      var date = +moment(data[i].date, 'YYYYMMDD');
+
+      self.ohlc.push([ date, // the date
+      data[i].open / 1000, // open
+      data[i].high / 1000, // high
+      data[i].low / 1000, // low
+      data[i].close / 1000 // close
+      ]);
+
+      self.volume.push([ date, // the date
+      data[i].volume // the volume
+      ]);
+    }
+    self.showKline();
+
+  };
+
+  self.processQuote = function(quote) {
+    if (self.status > 1) {
+      var data = quote.data;
+      var other = quote.otherData;
+
+      var d = +moment(data.date, 'YYYYMMDD');
+
+      var ohlc = self.ohlc;
+      if (ohlc.length > 0) {
+        if (ohlc[ohlc.length - 1][0] > d) {
+          self.prepareKline();
+        } else if (ohlc[ohlc.length - 1][0] == d) {
+          var p = ohlc[ohlc.length - 1];
+          p[1] = data.open / 1000;
+          p[2] = data.high / 1000;
+          p[3] = data.low / 1000;
+          p[4] = data.price / 1000;
+        }
+
+      } else {
+        ohlc.push([ d, // the date
+        data.open / 1000, // open
+        data.high / 1000, // high
+        data.low / 1000, // low
+        data.price / 1000 // close
+        ]);
+      }
+
+      var volume = self.volume;
+      if (volume.length > 0 && (volume[volume.length - 1][0] >= d)) {
+        var p = volume[volume.length - 1];
+        p[1] = data.vol / 1000;
+
+      } else {
+        volume.push([ d, // the date
+        data.volume, ]);
+      }
+
+      var chart = $('#chart').highcharts();
+      var serie0 = chart.series[0];
+      var serie1 = chart.series[1];
+      serie0.setData(ohlc);
+      serie1.setData(volume);
+
+    }
   };
 
   self.showKline = function() {
@@ -365,40 +455,10 @@ function KlineModel(stompClient, symbol) {
         yAxis : 1
       } ]
     });
-    
+
     var chart = $('#chart').highcharts();
-    chart.xAxis[0].setExtremes(
-        moment().subtract('M',2).toDate(),
-        +moment().toDate()
-    );
-
-  };
-
-  self.processQuote = function(data) {
-    if (self.active){
-      
-    }
-  };
-
-  self.processKline = function(data) {
-    self.ohlc = [];
-    self.volume = [];
-
-    for (var i = 0; i < data.length; i++) {
-      var date = +moment(data[i].date, 'YYYYMMDD');
-
-      self.ohlc.push([ date, // the date
-      data[i].open / 1000, // open
-      data[i].high / 1000, // high
-      data[i].low / 1000, // low
-      data[i].close / 1000 // close
-      ]);
-
-      self.volume.push([ date, // the date
-      data[i].volume // the volume
-      ]);
-    }
-    self.showKline();
+    chart.xAxis[0].setExtremes(moment().subtract('M', 2).toDate(), +moment().toDate());
+    self.status = 2;
 
   };
 
