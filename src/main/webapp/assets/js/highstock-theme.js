@@ -52,6 +52,14 @@ Highcharts.theme = {
   },
 
   plotOptions : {
+    series : {
+      shadow : true,
+      animation : false,
+      valueDecimals : 4,
+      dataGrouping : {
+          enabled : false
+      }
+    },   
     candlestick : {
       color : '#090',
       lineColor : '#090',

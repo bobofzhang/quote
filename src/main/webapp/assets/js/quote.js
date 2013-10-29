@@ -337,7 +337,7 @@ function KlineModel(stompClient, symbol) {
   };
 
   self.showKline = function() {
-    self.chart = $('#chart').highcharts('StockChart', {
+    $('#chart').highcharts('StockChart', {
       rangeSelector : {
         enabled : false,
         inputEnabled : false,
@@ -365,6 +365,12 @@ function KlineModel(stompClient, symbol) {
         yAxis : 1
       } ]
     });
+    
+    var chart = $('#chart').highcharts();
+    chart.xAxis[0].setExtremes(
+        moment().subtract('M',2).toDate(),
+        +moment().toDate()
+    );
 
   };
 
