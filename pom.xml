@@ -37,9 +37,9 @@
 
 		<commons.io.version>2.4</commons.io.version>
 		<commons.lang3.version>3.1</commons.lang3.version>
-
-		<spring.version>4.0.0.BUILD-SNAPSHOT</spring.version>
-		<spring.security.version>3.2.0.CI-SNAPSHOT</spring.security.version>
+        <groovy.version>2.1.9</groovy.version>
+		<spring.version>4.0.0.RC1</spring.version>
+		<spring.security.version>3.2.0.RC1</spring.security.version>
 
 		<reactor.version>1.0.0.RC1</reactor.version>
 		<netty.version>4.0.10.Final</netty.version>
@@ -100,28 +100,28 @@
 			<artifactId>logback-classic</artifactId>
 			<version>${logback.version}</version>
 		</dependency>
-		
+
 		<!-- Apache Commons -->
 		<dependency>
 			<groupId>org.apache.commons</groupId>
 			<artifactId>commons-lang3</artifactId>
 			<version>${commons.lang3.version}</version>
 		</dependency>
-		
+
 		<!-- pinyin4j -->
 		<dependency>
 			<groupId>com.belerweb</groupId>
 			<artifactId>pinyin4j</artifactId>
 			<version>${pinyin4j.version}</version>
 		</dependency>
-		
+
 		<!-- Netty -->
 		<dependency>
 			<groupId>io.netty</groupId>
 			<artifactId>netty-all</artifactId>
 			<version>${netty.version}</version>
 		</dependency>
-		
+
 		<!-- EhCache -->
 		<dependency>
 			<groupId>net.sf.ehcache</groupId>
@@ -167,15 +167,20 @@
 			<version>${spring.version}</version>
 			<scope>test</scope>
 		</dependency>
-		
+        <!-- Groovy -->
+		<dependency>
+			<groupId>org.codehaus.groovy</groupId>
+			<artifactId>groovy</artifactId>
+			<version>${groovy.version}</version>
+		</dependency>
 		<!-- Jackson -->
 		<dependency>
 			<groupId>com.fasterxml.jackson.core</groupId>
 			<artifactId>jackson-databind</artifactId>
 			<version>${jackson.version}</version>
 		</dependency>
-		
-        <!-- Spring Security -->
+
+		<!-- Spring Security -->
 		<dependency>
 			<groupId>org.springframework.security</groupId>
 			<artifactId>spring-security-core</artifactId>
@@ -197,7 +202,7 @@
 				</exclusion>
 			</exclusions>
 		</dependency>
-		
+
 		<!-- Reactor -->
 		<dependency>
 			<groupId>org.projectreactor</groupId>
@@ -211,7 +216,7 @@
 			<version>${reactor.version}</version>
 		</dependency>
 
-        <!-- Javassist -->
+		<!-- Javassist -->
 		<dependency>
 			<groupId>org.javassist</groupId>
 			<artifactId>javassist</artifactId>
@@ -222,9 +227,9 @@
 
 	<repositories>
 		<repository>
-			<id>springsource-repo</id>
+			<id>spring-releases</id>
 			<name>SpringSource Repository</name>
-			<url>http://repo.springsource.org/release</url>
+			<url>http://repo.spring.io/release</url>
 			<snapshots>
 				<enabled>false</enabled>
 			</snapshots>
@@ -234,8 +239,7 @@
 		</repository>
 		<repository>
 			<id>spring-milestones</id>
-			<name>SpringSource Milestones Repository</name>
-			<url>http://repo.springsource.org/libs-milestone/</url>
+			<url>http://repo.spring.io/libs-milestone/</url>
 			<snapshots>
 				<enabled>false</enabled>
 			</snapshots>
@@ -245,7 +249,7 @@
 		</repository>
 		<repository>
 			<id>spring-snapshots</id>
-			<url>http://repo.springsource.org/snapshot</url>
+			<url>http://repo.spring.io/snapshot</url>
 			<snapshots>
 				<enabled>true</enabled>
 			</snapshots>
@@ -317,7 +321,7 @@
 				<configuration>
 					<skipTests>true</skipTests>
 				</configuration>
-			</plugin>			
+			</plugin>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-assembly-plugin</artifactId>
@@ -359,7 +363,7 @@
 					</dependency>
 				</dependencies>
 			</plugin>
-
+<!-- 
 			<plugin>
 				<groupId>org.apache.tomcat.maven</groupId>
 				<artifactId>tomcat7-maven-plugin</artifactId>
@@ -378,7 +382,7 @@
 						<phase>package</phase>
 					</execution>
 				</executions>
-			</plugin>
+			</plugin> 
 
 			<plugin>
 				<groupId>org.glassfish.embedded</groupId>
@@ -428,6 +432,7 @@
 					</execution>
 				</executions>
 			</plugin>
+-->			
 		</plugins>
 	</build>
 </project>

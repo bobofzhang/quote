@@ -3,4 +3,5 @@
 .DS_Store
 .settings/
 target/
-logs/
+logs/*
+!gitkeep

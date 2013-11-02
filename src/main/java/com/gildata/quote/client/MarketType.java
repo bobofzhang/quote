@@ -189,5 +189,7 @@ public class MarketType {
 		return isMarket(type, market) && isBourse(type, bourse)
 				&& isKind(type, kind);
 	}
+	
+	
 
 }

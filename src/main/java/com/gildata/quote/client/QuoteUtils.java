@@ -1,5 +1,27 @@
 package com.gildata.quote.client;
 
+import static com.gildata.quote.client.MarketType.DALIAN_BOURSE;
+import static com.gildata.quote.client.MarketType.FUTURES_MARKET;
+import static com.gildata.quote.client.MarketType.GE_BOURSE;
+import static com.gildata.quote.client.MarketType.GUZHI_BOURSE;
+import static com.gildata.quote.client.MarketType.HK_BOURSE;
+import static com.gildata.quote.client.MarketType.HK_MARKET;
+import static com.gildata.quote.client.MarketType.HUANGJIN_BOURSE;
+import static com.gildata.quote.client.MarketType.INDEX_BOURSE;
+import static com.gildata.quote.client.MarketType.SHANGHAI_BOURSE;
+import static com.gildata.quote.client.MarketType.SH_BOURSE;
+import static com.gildata.quote.client.MarketType.STOCK_MARKET;
+import static com.gildata.quote.client.MarketType.SZ_BOURSE;
+import static com.gildata.quote.client.MarketType.ZHENGZHOU_BOURSE;
+import static com.gildata.quote.client.MarketType.isMarketBourse;
+import static com.gildata.quote.client.QuoteConstants.EXCHANGE_DL_FUTURES;
+import static com.gildata.quote.client.QuoteConstants.EXCHANGE_GD_FUTURES;
+import static com.gildata.quote.client.QuoteConstants.EXCHANGE_HK_STOCK;
+import static com.gildata.quote.client.QuoteConstants.EXCHANGE_IF_FUTURES;
+import static com.gildata.quote.client.QuoteConstants.EXCHANGE_SH_FUTURES;
+import static com.gildata.quote.client.QuoteConstants.EXCHANGE_SH_STOCK;
+import static com.gildata.quote.client.QuoteConstants.EXCHANGE_SZ_STOCK;
+import static com.gildata.quote.client.QuoteConstants.EXCHANGE_ZZ_FUTURES;
 import io.netty.buffer.ByteBuf;
 
 import java.nio.charset.Charset;
@@ -59,9 +81,35 @@ public class QuoteUtils {
 
 			}
 
-			
 		}
 		return sb.toString().toUpperCase();
 	}
+
+	public static String toMarketCode(short marketType) {
+		if (isMarketBourse(marketType, STOCK_MARKET, SH_BOURSE)) {
+			return EXCHANGE_SH_STOCK;
+		} else if (isMarketBourse(marketType, STOCK_MARKET, SZ_BOURSE)) {
+			return EXCHANGE_SZ_STOCK;
+		} else if (isMarketBourse(marketType, FUTURES_MARKET, DALIAN_BOURSE)) {
+			return EXCHANGE_DL_FUTURES;
+		} else if (isMarketBourse(marketType, FUTURES_MARKET, SHANGHAI_BOURSE)) {
+			return EXCHANGE_SH_FUTURES;
+		} else if (isMarketBourse(marketType, FUTURES_MARKET, ZHENGZHOU_BOURSE)) {
+			return EXCHANGE_ZZ_FUTURES;
+		} else if (isMarketBourse(marketType, FUTURES_MARKET, HUANGJIN_BOURSE)) {
+			return EXCHANGE_GD_FUTURES;
+		} else if (isMarketBourse(marketType, FUTURES_MARKET, GUZHI_BOURSE)) {
+			return EXCHANGE_IF_FUTURES;
+		} else if (isMarketBourse(marketType, HK_MARKET, HK_BOURSE)) {
+			return EXCHANGE_HK_STOCK;
+		} else if (isMarketBourse(marketType, HK_MARKET, GE_BOURSE)) {
+			return EXCHANGE_HK_STOCK;
+		} else if (isMarketBourse(marketType, HK_MARKET, INDEX_BOURSE)) {
+			return EXCHANGE_HK_STOCK;
+		} else {
+			return null;
+		}
+		
+	};
 
 }

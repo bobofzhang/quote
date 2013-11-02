@@ -4,37 +4,33 @@ import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 
-import com.gildata.quote.client.QuoteUtils;
 import com.gildata.quote.client.StockInitInfo;
 
 public class Ticker {
 
 	private String symbol;
 
-	private String code;
+	//private String code;
 
 	private String name;
 
-	private short market;
-
-	private String abbr;
-
-	private String[] tokens;
-
+	//private String abbr;
+	
+	//private short market;
+	
+	//private String exchange;
+	
 	private int prevClose;
 
 	public Ticker(StockInitInfo info) {
 		super();
 		this.symbol = info.getStockCode().toSymbol();
-		this.code = info.getStockCode().getCode();
-		this.market = info.getStockCode().getMarket();
+		//this.code = info.getStockCode().getCode();
 		this.name = info.getStockName();
+		//this.abbr = QuoteUtils.toPingYinFirstChar(info.getStockName());
+		//this.market = info.getStockCode().getMarket();
+		//this.exchange = info.getStockCode().getMarketCode();
 		this.prevClose = info.getPrevClose();
-
-		this.abbr = QuoteUtils.toPingYinFirstChar(info.getStockName());
-
-		this.tokens = new String[] { symbol, abbr };
-
 	}
 
 	public String getSymbol() {
@@ -45,13 +41,13 @@ public class Ticker {
 		this.symbol = symbol;
 	}
 
-	public String getCode() {
-		return code;
-	}
-
-	public void setCode(String code) {
-		this.code = code;
-	}
+//	public String getCode() {
+//		return code;
+//	}
+//
+//	public void setCode(String code) {
+//		this.code = code;
+//	}
 
 	public String getName() {
 		return name;
@@ -61,31 +57,31 @@ public class Ticker {
 		this.name = name;
 	}
 
-	public short getMarket() {
-		return market;
-	}
+//	public String getAbbr() {
+//		return abbr;
+//	}
+//
+//	public void setAbbr(String abbr) {
+//		this.abbr = abbr;
+//	}
 
-	public void setMarket(short market) {
-		this.market = market;
-	}
+//	public String getExchange() {
+//		return exchange;
+//	}
+//
+//	public void setExchange(String exchange) {
+//		this.exchange = exchange;
+//	}
 
-	public String getAbbr() {
-		return abbr;
-	}
-
-	public void setAbbr(String abbr) {
-		this.abbr = abbr;
-	}
-
-	public String[] getTokens() {
-		return tokens;
-	}
-
-	public void setTokens(String[] tokens) {
-		this.tokens = tokens;
-	}
-
-
+	
+	
+//	public short getMarket() {
+//		return market;
+//	}
+//
+//	public void setMarket(short market) {
+//		this.market = market;
+//	}
 
 	public int getPrevClose() {
 		return prevClose;
@@ -113,6 +109,7 @@ public class Ticker {
 		   return new EqualsBuilder()
 		                 .appendSuper(super.equals(obj))
 		                 .append(symbol, rhs.symbol)
+//		                 .append(exchange, rhs.exchange)
 		                 .isEquals();
 	}
 	

@@ -18,7 +18,6 @@ import org.springframework.messaging.core.MessageSendingOperations;
 import org.springframework.messaging.simp.BrokerAvailabilityEvent;
 import org.springframework.stereotype.Component;
 
-import com.gildata.quote.model.Trend;
 
 /**
  * 
@@ -207,9 +206,9 @@ public class QuoteClientHandler extends ChannelInboundHandlerAdapter implements
 	}
 
 	public void ansInitialData(AnsInitialData msg) {
-		for (OneMarketData marketData : msg.getMarketDatas()) {
-			quoteManager.initAll(marketData);
-		}
+		quoteManager.initAll(msg);
+		
+
 	}
 
 	public void ansServerInfo(AnsServerInfo msg) {

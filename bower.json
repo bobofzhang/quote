@@ -1,0 +1,40 @@
+{
+  "name": "quote",
+  "version": "0.0.1-SNAPSHOT",
+  "homepage": "https://github.com/luhuiguo/quote",
+  "authors": [
+    "Lu Huiguo <luhuiguo@gmail.com>"
+  ],
+  "description": "WebSocket Quote",
+  "keywords": [
+    "hundsun",
+    "gildata",
+    "quote",
+    "websocket",
+    "stock"
+  ],
+  "license": "MIT",
+  "private": true,
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "src/main/webapp/lib",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "jquery": "~2.0.3",
+    "bootstrap": "~3.0.1",
+    "angular": "~1.2.0",
+    "angular-i18n": "~1.2.0",
+    "angular-route": "~1.2.0", 
+    "angular-animate": "~1.2.0",       
+    "angular-bootstrap": "~0.6.0",
+    "moment": "~2.4.0",
+    "sockjs": "~0.3.4",
+    "stomp": "git://github.com/jmesnil/stomp-websocket.git#~2.3.0",
+    "highcharts": "git://github.com/luhuiguo/bower-highcharts.git#~3.0.7"
+
+  }
+}

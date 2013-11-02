@@ -1,17 +1,14 @@
 package com.gildata.quote.client;
 
-import static com.gildata.quote.client.MarketType.FUTURES_MARKET;
-import static com.gildata.quote.client.MarketType.HK_MARKET;
-import static com.gildata.quote.client.MarketType.SH_BOURSE;
-import static com.gildata.quote.client.MarketType.SZ_BOURSE;
 import static com.gildata.quote.client.QuoteConstants.CODE_LEN;
 import static com.gildata.quote.client.QuoteConstants.GB18030;
 import io.netty.buffer.ByteBuf;
 
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
-import org.apache.commons.lang3.builder.EqualsBuilder;
 
 ;
 
@@ -54,21 +51,19 @@ public class CodeInfo implements Encodable {
 	public void encodeAsByteBuf(ByteBuf byteBuf) {
 		byteBuf.writeShort(market);
 		QuoteUtils.writeString(byteBuf, code, CODE_LEN, GB18030);
-
+	}
+	
+	public String getMarketCode() {
+		return QuoteUtils.toMarketCode(market);
 	}
 
 	public String toSymbol() {
 
-		if ((market & SH_BOURSE) != 0) {
-			return code + ".SH";
-		} else if ((market & SZ_BOURSE) != 0) {
-			return code + ".SZ";
-		} else if ((market & FUTURES_MARKET) != 0) {
-			return code + ".FU";
-		} else if ((market & HK_MARKET) != 0) {
-			return code + ".HK";
-		} else {
+		String ex = getMarketCode();
+		if (StringUtils.isEmpty(ex)) {
 			return code;
+		} else {
+			return code + "." + ex;
 		}
 
 	}
