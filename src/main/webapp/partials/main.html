@@ -51,11 +51,13 @@
         </tr>
       </tbody>
     </table>
-
-    <tabset >
-    <tab heading="分时图"><div ng-controller="quoteTrendCtrl"><trend data="data"></trend></div></tab>
-      <tab heading="K线图"><div ng-controller="quoteKlineCtrl"><kline data="data"></kline></div></tab>
+    <tabset>
+      <tab heading="分时图" select="showTrend()"></tab>
+      <tab heading="K线图" select="showKline()"></tab>
     </tabset>
+    <div ng-show="isTrendVisible" ng-controller="quoteTrendCtrl"><trend data="data"></trend></div>
+    <div ng-hide="isTrendVisible" ng-controller="quoteKlineCtrl"><kline data="data"></kline></div>
+
 
 
   </div>
