@@ -247,7 +247,11 @@ angular.module('app.controllers', [])
       var symbol = $routeParams.symbol;
       var ticker = quoteService.getTicker(symbol);
 
+
+      console.log('11111111111');
       var requestTrend = function() {
+
+         console.log('1111111112222222211');
         var stompClient = quoteService.stompClient;
         stompClient.send("/app/trend/" + symbol, {}, '');
       };
@@ -339,7 +343,7 @@ angular.module('app.controllers', [])
         });
 
 
-        requestTrend();
+        //requestTrend();
 
       }
 
