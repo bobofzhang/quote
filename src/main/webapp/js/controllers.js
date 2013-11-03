@@ -240,4 +240,189 @@ angular.module('app.controllers', [])
 
 
     }
+  ])
+  .controller('quoteTrendCtrl', ['$scope', '$routeParams', 'quoteService',
+    function($scope, $routeParams, quoteService) {
+
+      var symbol = $routeParams.symbol;
+      var ticker = quoteService.getTicker(symbol);
+
+      var requestTrend = function() {
+        var stompClient = quoteService.stompClient;
+        stompClient.send("/app/trend/" + symbol, {}, '');
+      };
+
+      $scope.data = [];
+
+      if (ticker) {
+
+        $scope.$on('TREND', function(event, msg) {
+          var date = quoteService.getDate(symbol);
+          var times = quoteService.getTimes(symbol);
+          var items = msg.items;
+
+          var data = [];
+
+          for (var i = 0; i < times.length; i++) {
+
+            var m = +moment(self.date, 'YYYYMMDD').add('minutes', times[i]);
+            if (items.length > i) {
+              if (i > 1) {
+                data.push([m, items[i].price / 1000, items[i].vol - items[i - 1].vol]);
+              } else {
+                data.push([m, items[i].price / 1000, items[i].vol]);
+              }
+            } else {
+              data.push([m, null, null]);
+            }
+          }
+          $scope.items = items;
+          $scope.data = data;
+
+        });
+
+        $scope.$on('QUOTE', function(event, msg) {
+          var date = quoteService.getDate(symbol);
+          var times = quoteService.getTimes(symbol);
+          var data = msg.data;
+          var other = msg.otherData;
+
+          var items = $scope.items;
+
+          var t = other.time;
+
+          if (items.length - 1 > t) {
+            requestTrend();
+          } else {
+            if (items.length == 0) {
+              var item = {};
+              item.price = self.prevClose;
+              item.vol = 0;
+              items.push(item);
+            }
+
+            while (items.length <= t) {
+              var last = items[items.length - 1];
+              var item = {};
+              item.price = last.price;
+              item.vol = last.vol;
+              items.push(item);
+            }
+
+            var last = items[items.length - 1];
+
+            last.price = data.price;
+            last.vol = data.vol;
+
+            var data = [];
+
+            for (var i = 0; i < times.length; i++) {
+
+              var m = +moment(self.date, 'YYYYMMDD').add('minutes', times[i]);
+              if (items.length > i) {
+                if (i > 1) {
+                  data.push([m, items[i].price / 1000, items[i].vol - items[i - 1].vol]);
+                } else {
+                  data.push([m, items[i].price / 1000, items[i].vol]);
+                }
+              } else {
+                data.push([m, null, null]);
+              }
+            }
+
+            $scope.data = data;
+
+
+          }
+
+
+        });
+
+
+        requestTrend();
+
+      }
+
+    }
+  ])
+  .controller('quoteKlineCtrl', ['$scope', '$routeParams', 'quoteService',
+    function($scope, $routeParams, quoteService) {
+
+      var symbol = $routeParams.symbol;
+      var ticker = quoteService.getTicker(symbol);
+
+      var requestKline = function() {
+        var stompClient = quoteService.stompClient;
+        stompClient.send("/app/kline/" + symbol, {}, '');
+      };
+
+      $scope.data = [];
+
+      if (ticker) {
+
+        $scope.$on('KLINE', function(event, msg) {
+          var date = quoteService.getDate(symbol);
+
+          var data = [];
+
+          for (var i = 0; i < msg.length; i++) {
+            var date = +moment(msg[i].date, 'YYYYMMDD');
+
+            data.push([date, // the date
+              msg[i].open / 1000, // open
+              msg[i].high / 1000, // high
+              msg[i].low / 1000, // low
+              msg[i].close / 1000, // close
+              msg[i].volume // the volume
+            ]);
+          }
+
+
+
+          $scope.data = data;
+
+
+
+        });
+
+
+        $scope.$on('QUOTE', function(event, msg) {
+
+          var data = msg.data;
+          var other = msg.otherData;
+
+          var d = +moment(data.date, 'YYYYMMDD');
+
+          var chartData = $scope.data;
+          if (chartData.length > 0) {
+            if (chartData[chartData.length - 1][0] > d) {
+              requestKline();
+            } else if (chartData[chartData.length - 1][0] == d) {
+              var p = chartData[chartData.length - 1];
+              p[1] = data.open / 1000;
+              p[2] = data.high / 1000;
+              p[3] = data.low / 1000;
+              p[4] = data.price / 1000;
+              p[5] = data.vol;
+            }
+
+          } else {
+            chartData.push([d, // the date
+              data.open / 1000, // open
+              data.high / 1000, // high
+              data.low / 1000, // low
+              data.price / 1000, // close
+              data.vol
+            ]);
+          }
+
+
+        });
+
+
+        requestKline();
+
+      }
+
+    }
   ]);
