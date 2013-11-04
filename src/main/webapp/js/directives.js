@@ -143,7 +143,7 @@ angular.module('app.directives', [])
 				chart.series[0].setData(ohlc, false);
 				chart.series[1].setData(volume, false);
 				if (!notEmpty) {
-					chart.xAxis[0].setExtremes(moment().subtract('M', 2).toDate(), +moment().toDate(), false);
+					chart.xAxis[0].setExtremes(moment().subtract('M', 2).toDate(), moment().toDate(), false);
 				}
 
 				chart.redraw();

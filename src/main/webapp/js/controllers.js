@@ -238,7 +238,7 @@ angular.module('app.controllers', [])
           var m = moment(date, 'YYYYMMDD').add('m', times[other.time - 1]).add('s', other.second)
             .format('HH:mm:ss');
 
-          self.addTick({
+          $scope.addTick({
             time: m,
             price: data.price,
             volume: other.current
@@ -263,6 +263,7 @@ angular.module('app.controllers', [])
         stompClient.send("/app/trend/" + symbol, {}, '');
       };
 
+      $scope.items = [];
       $scope.data = [];
 
       if (ticker) {
@@ -361,7 +362,7 @@ angular.module('app.controllers', [])
 
       var symbol = $routeParams.symbol;
       var ticker = quoteService.getTicker(symbol);
-
+      var date = quoteService.getDate(symbol);
       var requestKline = function() {
         var stompClient = quoteService.stompClient;
         stompClient.send("/app/kline/" + symbol, {}, '');
@@ -372,7 +373,6 @@ angular.module('app.controllers', [])
       if (ticker) {
 
         $scope.$on('KLINE', function(event, msg) {
-          var date = quoteService.getDate(symbol);
 
           var data = [];
 
@@ -402,19 +402,31 @@ angular.module('app.controllers', [])
           var data = msg.data;
           var other = msg.otherData;
 
-          var d = +moment(data.date, 'YYYYMMDD');
+          var m = moment(date, 'YYYYMMDD');
+          var d = +m;
 
           var chartData = $scope.data;
+
           if (chartData.length > 0) {
-            if (chartData[chartData.length - 1][0] > d) {
+
+
+            if (m.isBefore(chartData[chartData.length - 1][0])) {
               requestKline();
-            } else if (chartData[chartData.length - 1][0] == d) {
+            } else if (m.isSame(chartData[chartData.length - 1][0])) {
               var p = chartData[chartData.length - 1];
               p[1] = data.open / 1000;
               p[2] = data.high / 1000;
               p[3] = data.low / 1000;
               p[4] = data.price / 1000;
-              p[5] = data.vol;
+              p[5] = data.vol / 100;
+            } else if (m.isAfter(chartData[chartData.length - 1][0])) {
+              chartData.push([d, // the date
+                data.open / 1000, // open
+                data.high / 1000, // high
+                data.low / 1000, // low
+                data.price / 1000, // close
+                data.vol / 100
+              ]);
             }
 
           } else {
@@ -423,7 +435,7 @@ angular.module('app.controllers', [])
               data.high / 1000, // high
               data.low / 1000, // low
               data.price / 1000, // close
-              data.vol
+              data.vol /100 
             ]);
           }
 
