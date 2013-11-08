@@ -3,13 +3,19 @@ package com.gildata.quote.client;
 import static com.gildata.quote.client.MarketType.FUTURES_MARKET;
 import static com.gildata.quote.client.MarketType.HK_MARKET;
 import static com.gildata.quote.client.MarketType.STOCK_MARKET;
+import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.ChannelHandler.Sharable;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
+import io.netty.channel.EventLoop;
+import io.netty.handler.timeout.IdleState;
+import io.netty.handler.timeout.IdleStateEvent;
 import io.netty.util.internal.logging.InternalLogger;
 import io.netty.util.internal.logging.InternalLoggerFactory;
 
+import java.net.ConnectException;
 import java.util.Collection;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,7 +23,6 @@ import org.springframework.context.ApplicationListener;
 import org.springframework.messaging.core.MessageSendingOperations;
 import org.springframework.messaging.simp.BrokerAvailabilityEvent;
 import org.springframework.stereotype.Component;
-
 
 /**
  * 
@@ -37,10 +42,69 @@ public class QuoteClientHandler extends ChannelInboundHandlerAdapter implements
 	private AtomicBoolean brokerAvailable = new AtomicBoolean();
 
 	@Autowired
+	private QuoteClient quoteClient;
+
+	@Autowired
 	private QuoteManager quoteManager;
 
 	@Autowired
 	private MessageSendingOperations<String> messagingTemplate;
+
+	@Override
+	public void handlerAdded(ChannelHandlerContext ctx) {
+		this.ctx = ctx;
+	}
+
+	@Override
+	public void channelActive(ChannelHandlerContext ctx) throws Exception {
+		super.channelActive(ctx);
+		logger.info("Connected to: {}", ctx.channel().remoteAddress());
+		reqLogin("guest", "guest");
+	}
+
+	@Override
+	public void channelInactive(final ChannelHandlerContext ctx)
+			throws Exception {
+		super.channelInactive(ctx);
+		logger.info("Disconnected from: {}", ctx.channel().remoteAddress());
+
+		logger.info("Sleeping for: {} s", QuoteClient.RECONNECT_DELAY);
+
+		final EventLoop loop = ctx.channel().eventLoop();
+		loop.schedule(new Runnable() {
+			@Override
+			public void run() {
+				logger.info("Reconnecting...");
+				quoteClient.configureBootstrap(new Bootstrap(), loop).connect();
+			}
+		}, QuoteClient.RECONNECT_DELAY, TimeUnit.SECONDS);
+	}
+
+	@Override
+	public void userEventTriggered(ChannelHandlerContext ctx, Object evt)
+			throws Exception {
+		logger.debug("userEventTriggered: {}", evt);
+
+		if (evt instanceof IdleStateEvent) {
+			IdleStateEvent e = (IdleStateEvent) evt;
+			if (e.state() == IdleState.READER_IDLE) {
+				// ctx.close();
+			} else if (e.state() == IdleState.WRITER_IDLE) {
+				ctx.writeAndFlush(new ReqKeepActive());
+			}
+		}
+		super.userEventTriggered(ctx, evt);
+	}
+
+	@Override
+	public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause)
+			throws Exception {
+		if (cause instanceof ConnectException) {
+			logger.warn("Failed to connect: ", cause);
+		}
+		ctx.close();
+		super.exceptionCaught(ctx, cause);
+	}
 
 	@Override
 	public void channelRead(ChannelHandlerContext ctx, Object msg)
@@ -72,17 +136,6 @@ public class QuoteClientHandler extends ChannelInboundHandlerAdapter implements
 			ansDayDataEx((AnsDayDataEx) msg);
 		}
 
-	}
-
-	@Override
-	public void handlerAdded(ChannelHandlerContext ctx) {
-		this.ctx = ctx;
-	}
-
-	@Override
-	public void channelActive(ChannelHandlerContext ctx) throws Exception {
-		super.channelActive(ctx);
-		reqLogin("guest", "guest");
 	}
 
 	public void reqLogin(String username, String password) {
@@ -207,12 +260,11 @@ public class QuoteClientHandler extends ChannelInboundHandlerAdapter implements
 
 	public void ansInitialData(AnsInitialData msg) {
 		quoteManager.initAll(msg);
-		
 
 	}
 
 	public void ansServerInfo(AnsServerInfo msg) {
-		
+
 	}
 
 	public void ansRealTime(AnsRealTime msg) {
@@ -250,27 +302,29 @@ public class QuoteClientHandler extends ChannelInboundHandlerAdapter implements
 		if (this.brokerAvailable.get()) {
 			this.messagingTemplate.convertAndSend("/queue/tick/"
 					+ msg.getPrivateKey().getCodeInfo().toSymbol(), msg);
-		}		
+		}
 	}
 
 	public void ansTick(AnsTick msg) {
 		if (this.brokerAvailable.get()) {
 			this.messagingTemplate.convertAndSend("/queue/tick/"
 					+ msg.getPrivateKey().getCodeInfo().toSymbol(), msg);
-		}	
+		}
 	}
 
 	public void ansDayData(AnsDayData msg) {
 		if (this.brokerAvailable.get()) {
 			this.messagingTemplate.convertAndSend("/queue/kline/"
-					+ msg.getPrivateKey().getCodeInfo().toSymbol(), msg.getDatas());
+					+ msg.getPrivateKey().getCodeInfo().toSymbol(),
+					msg.getDatas());
 		}
 	}
 
 	public void ansDayDataEx(AnsDayDataEx msg) {
 		if (this.brokerAvailable.get()) {
 			this.messagingTemplate.convertAndSend("/queue/kline/"
-					+ msg.getPrivateKey().getCodeInfo().toSymbol(), msg.getDatas());
+					+ msg.getPrivateKey().getCodeInfo().toSymbol(),
+					msg.getDatas());
 		}
 	}
 

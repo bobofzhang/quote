@@ -9,9 +9,7 @@ import io.netty.util.internal.logging.InternalLoggerFactory;
 
 import java.nio.ByteOrder;
 
-import org.springframework.stereotype.Component;
-
-@Component
+//@Component
 @Sharable
 public class EnvelopeEncoder extends MessageToByteEncoder<Envelope> {
 

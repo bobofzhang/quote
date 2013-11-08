@@ -10,9 +10,7 @@ import io.netty.util.internal.logging.InternalLoggerFactory;
 import java.nio.ByteOrder;
 import java.util.zip.Inflater;
 
-import org.springframework.stereotype.Component;
-
-@Component
+//@Component
 public class EnvelopeDecoder extends LengthFieldBasedFrameDecoder {
 
 	private static final InternalLogger logger = InternalLoggerFactory
